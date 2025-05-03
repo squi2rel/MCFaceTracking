@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "com.github.squi2rel.mcft.mixin.client",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "CuboidAccessor",
+    "ModelPartAccessor",
+    "ModelPartDataMixin",
+    "PlayerModelMixin",
+    "QuadAccessor",
+    "VertexAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+	}
+}

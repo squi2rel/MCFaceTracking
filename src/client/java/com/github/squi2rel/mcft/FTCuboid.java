@@ -1,0 +1,163 @@
+package com.github.squi2rel.mcft;
+
+import com.github.squi2rel.mcft.mixin.client.CuboidAccessor;
+import com.github.squi2rel.mcft.mixin.client.QuadAccessor;
+import com.github.squi2rel.mcft.mixin.client.VertexAccessor;
+import com.github.squi2rel.mcft.tracking.EyeTrackingRect;
+import com.github.squi2rel.mcft.tracking.TrackingRect;
+import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.*;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Direction;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import sun.reflect.ReflectionFactory;
+
+import java.lang.reflect.Constructor;
+import java.util.Set;
+
+@SuppressWarnings("unchecked")
+public class FTCuboid extends ModelPart.Cuboid {
+    public static final int faceIndex = 3;
+    private static final Vector3f position = new Vector3f(), normal = new Vector3f(), tmp = new Vector3f();
+    private static final Constructor<FTCuboid> constructor;
+    private static int light, overlay, color;
+
+    static {
+        try {
+            ReflectionFactory rf = ReflectionFactory.getReflectionFactory();
+            Constructor<Object> objCtor = Object.class.getDeclaredConstructor();
+            constructor = (Constructor<FTCuboid>) rf.newConstructorForSerialization(FTCuboid.class, objCtor);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public FTCuboid() {
+        super(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, false, 0, 0, Set.of());
+        throw new AssertionError();
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    @Override
+    public void renderCuboid(MatrixStack.Entry entry, VertexConsumer buffer, int l, int o, int c) {
+        light = l;
+        overlay = o;
+        color = c;
+        Matrix4f posMat = entry.getPositionMatrix();
+        int id = -1;
+        for (ModelPart.Quad q : this.sides) {
+            id++;
+            QuadAccessor quad = (QuadAccessor) (Object) q;
+            entry.transformNormal(quad.getDirection(), normal);
+            if (id == faceIndex) {
+                drawFace(entry, buffer);
+                continue;
+            }
+            for (ModelPart.Vertex vertex : quad.getVertices()) {
+                Vector3f pos = ((VertexAccessor) (Object) vertex).getPos();
+                posMat.transformPosition(pos.x() / 16.0F, pos.y() / 16.0F, pos.z() / 16.0F, position);
+                buffer.vertex(
+                        position.x, position.y, position.z,
+                        color, vertex.u(), vertex.v(), overlay, light,
+                        normal.x, normal.y, normal.z
+                );
+            }
+        }
+    }
+
+    private void drawFace(MatrixStack.Entry entry, VertexConsumer buffer) {
+        FTModel.update();
+        Matrix4f posMat = entry.getPositionMatrix();
+        EyeTrackingRect r = FTModel.eyeR;
+        EyeTrackingRect l = FTModel.eyeL;
+        TrackingRect m = FTModel.mouth;
+        drawFace(posMat, buffer, 0, 0, r.x, r.y);
+        drawFace(posMat, buffer, r.x, 0, r.w, r.y - r.ih);
+        drawFace(posMat, buffer, r.x + r.w, 0, l.x - r.x - r.w, m.y - m.h);
+        drawFace(posMat, buffer, l.x, 0, l.w, l.y - l.ih);
+        drawFace(posMat, buffer, l.x + l.w, 0, 8 - l.x - l.w, l.y);
+        drawFace(posMat, buffer, 0, r.y, m.x, 8 - r.y);
+        drawFace(posMat, buffer, m.x + m.w, l.y, 8 - m.x - m.w, 8 - l.y);
+        drawFace(posMat, buffer, m.x, m.y, m.w, 8 - m.y);
+        drawCube(entry, buffer, r.x - 4, r.y - r.h - 8, -2, 0.17188f, 0.23438f, r.x + r.w - 4, r.y - 8, -4f, 0.18750f, 0.25000f, Direction.NORTH, true);
+        drawQuad(posMat, buffer, r.x - 4, r.y - r.h - 8, 0.17188f, 0.23438f, r.x + r.w - 4, r.y - 8, 0.18750f, 0.25000f, -3.9f);
+        drawCube(entry, buffer, r.x + (r.w - r.ball.x) / 2 + r.pos.x - 4, r.y - (r.ih + r.ball.y) / 2 + r.pos.y - 8, -2, 0.15625f, 0.21875f, r.x + (r.w + r.ball.x) / 2 + r.pos.x - 4, r.y - (r.ih - r.ball.y) / 2 + r.pos.y - 8, -3.95f, 0.17188f, 0.23438f, Direction.SOUTH, false);
+        drawQuad(posMat, buffer, r.x - 4, r.y - r.h - 8, 0.15625f, 0.23438f, r.x + r.w - 4, r.y - r.ih - 8, 0.17188f, 0.25000f);
+        drawCube(entry, buffer, r.x - 4, r.y - r.h - 8, -4, 0.12500f, 0.20312f, r.x + r.w - 4, r.y - r.h - 0.1f - 8, -4.1f, 0.14062f, 0.21875f, Direction.SOUTH, false);
+        drawCube(entry, buffer, l.x - 4, l.y - l.h - 8, -2, 0.17188f, 0.23438f, l.x + l.w - 4, l.y - 8, -4f, 0.18750f, 0.25000f, Direction.NORTH, true);
+        drawQuad(posMat, buffer, l.x - 4, l.y - l.h - 8, 0.17188f, 0.23438f, l.x + l.w - 4, l.y - 8, 0.18750f, 0.25000f, -3.9f);
+        drawCube(entry, buffer, l.x + (l.w - l.ball.x) / 2 + l.pos.x - 4, l.y - (l.ih + l.ball.y) / 2 + l.pos.y - 8, -2, 0.20312f, 0.21875f, l.x + (l.w + l.ball.x) / 2 + l.pos.x - 4, l.y - (l.ih - l.ball.y) / 2 + l.pos.y - 8, -3.95f, 0.21875f, 0.23438f, Direction.SOUTH, false);
+        drawQuad(posMat, buffer, l.x - 4, l.y - l.h - 8, 0.15625f, 0.23438f, l.x + l.w - 4, l.y - l.ih - 8, 0.17188f, 0.25000f);
+        drawCube(entry, buffer, l.x - 4, l.y - l.h - 8, -4, 0.12500f, 0.20312f, l.x + l.w - 4, l.y - l.h - 0.1f - 8, -4.1f, 0.14062f, 0.21875f, Direction.SOUTH, false);
+        drawCube(entry, buffer, m.x - 4, m.y - m.h - 8, -3, 0.14062f, 0.89062f, m.x + m.w - 4, m.y - 8, -4, 0.15625f, 0.90625f, Direction.NORTH, true);
+    }
+
+    private void drawCube(MatrixStack.Entry entry, VertexConsumer buffer, float x1, float y1, float z1, float u1, float v1, float x2, float y2, float z2, float u2, float v2, Direction skip, boolean inner) {
+        Matrix4f posMat = entry.getPositionMatrix();
+        if (skip != Direction.NORTH) drawQuad(posMat, buffer, x1, y1, z2, u1, v1, x2, y1, z2, u2, v1, x2, y2, z2, u2, v2, x1, y2, z2, u1, v2, entry.transformNormal((inner ? Direction.SOUTH : Direction.NORTH).getUnitVector(), tmp));
+        if (skip != Direction.SOUTH) drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x1, y2, z1, u1, v2, x2, y2, z1, u2, v2, x2, y1, z1, u2, v1, entry.transformNormal((inner ? Direction.NORTH : Direction.SOUTH).getUnitVector(), tmp));
+        if (skip != Direction.WEST) drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x1, y1, z2, u2, v1, x1, y2, z2, u2, v2, x1, y2, z1, u1, v2, entry.transformNormal((inner ? Direction.EAST : Direction.WEST).getUnitVector(), tmp));
+        if (skip != Direction.EAST) drawQuad(posMat, buffer, x2, y1, z1, u1, v1, x2, y1, z2, u2, v1, x2, y2, z2, u2, v2, x2, y2, z1, u1, v2, entry.transformNormal((inner ? Direction.WEST : Direction.EAST).getUnitVector(), tmp));
+        if (skip != Direction.UP) drawQuad(posMat, buffer, x1, y2, z1, u1, v1, x1, y2, z2, u1, v2, x2, y2, z2, u2, v2, x2, y2, z1, u2, v1, entry.transformNormal((inner ? Direction.DOWN : Direction.UP).getUnitVector(), tmp));
+        if (skip != Direction.DOWN) drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x2, y1, z1, u2, v1, x2, y1, z2, u2, v2, x1, y1, z2, u1, v2, entry.transformNormal((inner ? Direction.UP : Direction.DOWN).getUnitVector(), tmp));
+    }
+
+    private void drawFace(Matrix4f posMat, VertexConsumer buffer, float x, float y, float w, float h) {
+        drawQuad(
+                posMat, buffer,
+                x - 4, y - 8, 0.125f + x / 64, 0.125f + y / 64,
+                x + w - 4, y + h - 8, 0.125f + (x + w) / 64, 0.125f + (y + h) / 64
+        );
+    }
+
+    private void drawQuad(Matrix4f posMat, VertexConsumer buffer, float x1, float y1, float u1, float v1, float x2, float y2, float u2, float v2) {
+        drawQuad(posMat, buffer, x1, y1, u1, v1, x2, y1, u2, v1, x2, y2, u2, v2, x1, y2, u1, v2);
+    }
+
+    private void drawQuad(Matrix4f posMat, VertexConsumer buffer, float x1, float y1, float u1, float v1, float x2, float y2, float u2, float v2, float z) {
+        drawQuad(posMat, buffer, x1, y1, z, u1, v1, x2, y1, z, u2, v1, x2, y2, z, u2, v2, x1, y2, z, u1, v2, normal);
+    }
+
+    private void drawQuad(
+            Matrix4f posMat, VertexConsumer buffer,
+            float x1, float y1, float u1, float v1, float x2, float y2, float u2, float v2,
+            float x3, float y3, float u3, float v3, float x4, float y4, float u4, float v4
+    ) {
+        drawQuad(posMat, buffer, x1, y1, -4, u1, v1, x2, y2, -4, u2, v2, x3, y3, -4, u3, v3, x4, y4, -4, u4, v4, normal);
+    }
+
+    private void drawQuad(
+            Matrix4f posMat, VertexConsumer buffer,
+            float x1, float y1, float z1, float u1, float v1, float x2, float y2, float z2, float u2, float v2,
+            float x3, float y3, float z3, float u3, float v3, float x4, float y4, float z4, float u4, float v4,
+            Vector3f normal
+    ) {
+        float nx = normal.x;
+        float ny = normal.y;
+        float nz = normal.z;
+        posMat.transformPosition(x1 / 16.0F, y1 / 16.0F, z1 / 16.0F, position);
+        buffer.vertex(position.x, position.y, position.z, color, u1, v1, overlay, light, nx, ny, nz);
+        posMat.transformPosition(x2 / 16.0F, y2 / 16.0F, z2 / 16.0F, position);
+        buffer.vertex(position.x, position.y, position.z, color, u2, v2, overlay, light, nx, ny, nz);
+        posMat.transformPosition(x3 / 16.0F, y3 / 16.0F, z3 / 16.0F, position);
+        buffer.vertex(position.x, position.y, position.z, color, u3, v3, overlay, light, nx, ny, nz);
+        posMat.transformPosition(x4 / 16.0F, y4 / 16.0F, z4 / 16.0F, position);
+        buffer.vertex(position.x, position.y, position.z, color, u4, v4, overlay, light, nx, ny, nz);
+    }
+
+    public static FTCuboid newInstance(ModelPart.Cuboid obj) {
+        CuboidAccessor old = (CuboidAccessor) obj;
+        CuboidAccessor now;
+        try {
+            now = (CuboidAccessor) constructor.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        now.setMinX(old.getMinX());
+        now.setMinY(old.getMinY());
+        now.setMinZ(old.getMinZ());
+        now.setSides(old.getSides());
+        return (FTCuboid) now;
+    }
+}
