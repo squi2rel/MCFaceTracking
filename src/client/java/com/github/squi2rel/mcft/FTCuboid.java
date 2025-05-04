@@ -6,7 +6,7 @@ import com.github.squi2rel.mcft.mixin.client.VertexAccessor;
 import com.github.squi2rel.mcft.tracking.EyeTrackingRect;
 import com.github.squi2rel.mcft.tracking.TrackingRect;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Direction;
 import org.joml.Matrix4f;
@@ -15,10 +15,12 @@ import sun.reflect.ReflectionFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.Set;
+import java.util.UUID;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "SameParameterValue"})
 public class FTCuboid extends ModelPart.Cuboid {
     public static final int faceIndex = 3;
+    public static UUID player;
     private static final Vector3f position = new Vector3f(), normal = new Vector3f(), tmp = new Vector3f();
     private static final Constructor<FTCuboid> constructor;
     private static int light, overlay, color;
@@ -51,8 +53,11 @@ public class FTCuboid extends ModelPart.Cuboid {
             QuadAccessor quad = (QuadAccessor) (Object) q;
             entry.transformNormal(quad.getDirection(), normal);
             if (id == faceIndex) {
-                drawFace(entry, buffer);
-                continue;
+                FTModel m = MCFTClient.uuidToModel.get(player);
+                if (m != null && m.active()) {
+                    drawFace(m, entry, buffer);
+                    continue;
+                }
             }
             for (ModelPart.Vertex vertex : quad.getVertices()) {
                 Vector3f pos = ((VertexAccessor) (Object) vertex).getPos();
@@ -66,12 +71,12 @@ public class FTCuboid extends ModelPart.Cuboid {
         }
     }
 
-    private void drawFace(MatrixStack.Entry entry, VertexConsumer buffer) {
-        FTModel.update();
+    private void drawFace(FTModel model, MatrixStack.Entry entry, VertexConsumer buffer) {
+        model.update();
         Matrix4f posMat = entry.getPositionMatrix();
-        EyeTrackingRect r = FTModel.eyeR;
-        EyeTrackingRect l = FTModel.eyeL;
-        TrackingRect m = FTModel.mouth;
+        EyeTrackingRect r = model.eyeR;
+        EyeTrackingRect l = model.eyeL;
+        TrackingRect m = model.mouth;
         drawFace(posMat, buffer, 0, 0, r.x, r.y);
         drawFace(posMat, buffer, r.x, 0, r.w, r.y - r.ih);
         drawFace(posMat, buffer, r.x + r.w, 0, l.x - r.x - r.w, m.y - m.h);
@@ -80,17 +85,18 @@ public class FTCuboid extends ModelPart.Cuboid {
         drawFace(posMat, buffer, 0, r.y, m.x, 8 - r.y);
         drawFace(posMat, buffer, m.x + m.w, l.y, 8 - m.x - m.w, 8 - l.y);
         drawFace(posMat, buffer, m.x, m.y, m.w, 8 - m.y);
-        drawCube(entry, buffer, r.x - 4, r.y - r.h - 8, -2, 0.17188f, 0.23438f, r.x + r.w - 4, r.y - 8, -4f, 0.18750f, 0.25000f, Direction.NORTH, true);
-        drawQuad(posMat, buffer, r.x - 4, r.y - r.h - 8, 0.17188f, 0.23438f, r.x + r.w - 4, r.y - 8, 0.18750f, 0.25000f, -3.9f);
-        drawCube(entry, buffer, r.x + (r.w - r.ball.x) / 2 + r.pos.x - 4, r.y - (r.ih + r.ball.y) / 2 + r.pos.y - 8, -2, 0.15625f, 0.21875f, r.x + (r.w + r.ball.x) / 2 + r.pos.x - 4, r.y - (r.ih - r.ball.y) / 2 + r.pos.y - 8, -3.95f, 0.17188f, 0.23438f, Direction.SOUTH, false);
-        drawQuad(posMat, buffer, r.x - 4, r.y - r.h - 8, 0.15625f, 0.23438f, r.x + r.w - 4, r.y - r.ih - 8, 0.17188f, 0.25000f);
-        drawCube(entry, buffer, r.x - 4, r.y - r.h - 8, -4, 0.12500f, 0.20312f, r.x + r.w - 4, r.y - r.h - 0.1f - 8, -4.1f, 0.14062f, 0.21875f, Direction.SOUTH, false);
-        drawCube(entry, buffer, l.x - 4, l.y - l.h - 8, -2, 0.17188f, 0.23438f, l.x + l.w - 4, l.y - 8, -4f, 0.18750f, 0.25000f, Direction.NORTH, true);
-        drawQuad(posMat, buffer, l.x - 4, l.y - l.h - 8, 0.17188f, 0.23438f, l.x + l.w - 4, l.y - 8, 0.18750f, 0.25000f, -3.9f);
-        drawCube(entry, buffer, l.x + (l.w - l.ball.x) / 2 + l.pos.x - 4, l.y - (l.ih + l.ball.y) / 2 + l.pos.y - 8, -2, 0.20312f, 0.21875f, l.x + (l.w + l.ball.x) / 2 + l.pos.x - 4, l.y - (l.ih - l.ball.y) / 2 + l.pos.y - 8, -3.95f, 0.21875f, 0.23438f, Direction.SOUTH, false);
-        drawQuad(posMat, buffer, l.x - 4, l.y - l.h - 8, 0.15625f, 0.23438f, l.x + l.w - 4, l.y - l.ih - 8, 0.17188f, 0.25000f);
-        drawCube(entry, buffer, l.x - 4, l.y - l.h - 8, -4, 0.12500f, 0.20312f, l.x + l.w - 4, l.y - l.h - 0.1f - 8, -4.1f, 0.14062f, 0.21875f, Direction.SOUTH, false);
-        drawCube(entry, buffer, m.x - 4, m.y - m.h - 8, -3, 0.14062f, 0.89062f, m.x + m.w - 4, m.y - 8, -4, 0.15625f, 0.90625f, Direction.NORTH, true);
+        drawEye(entry, buffer, r);
+        drawEye(entry, buffer, l);
+        drawCube(entry, buffer, m.x - 4, m.y - m.h - 8, -3, m.u1, m.v1, m.x + m.w - 4, m.y - 8, -4, m.u2, m.v2, Direction.NORTH, true);
+    }
+
+    private void drawEye(MatrixStack.Entry entry, VertexConsumer buffer, EyeTrackingRect e) {
+        Matrix4f posMat = entry.getPositionMatrix();
+        drawCube(entry, buffer, e.x - 4, e.y - e.h - 8, -2, e.inner.u1, e.inner.v1, e.x + e.w - 4, e.y - 8, -4f, e.inner.u2, e.inner.v2, Direction.NORTH, true);
+        drawQuad(posMat, buffer, e.x - 4, e.y - e.h - 8, e.inner.u1, e.inner.v1, e.x + e.w - 4, e.y - 8, e.inner.u2, e.inner.v2, -3.9f);
+        drawCube(entry, buffer, e.x + (e.w - e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih + e.ball.h) / 2 + e.ball.y - 8, -2, e.ball.u1, e.ball.v1, e.x + (e.w + e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih - e.ball.h) / 2 + e.ball.y - 8, -3.95f, e.ball.u2, e.ball.v2, Direction.SOUTH, false);
+        drawQuad(posMat, buffer, e.x - 4, e.y - e.h - 8, e.lid.u1, e.lid.v1, e.x + e.w - 4, e.y - e.ih - 8, e.lid.u2, e.lid.v2);
+        drawCube(entry, buffer, e.x - 4, e.y - e.h - 8, -4, e.lid.u1, e.lid.v1, e.x + e.w - 4, e.y - e.h - 0.1f - 8, -4.1f, e.lid.u2, e.lid.v2, Direction.SOUTH, false);
     }
 
     private void drawCube(MatrixStack.Entry entry, VertexConsumer buffer, float x1, float y1, float z1, float u1, float v1, float x2, float y2, float z2, float u2, float v2, Direction skip, boolean inner) {

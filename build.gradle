@@ -52,7 +52,10 @@ dependencies {
 	modCompileOnly "maven.modrinth:vivecraft:1.21.4-1.2.5-fabric"
 
 	implementation "com.illposed.osc:javaosc-core:0.8"
-	implementation 'dnsjava:dnsjava:3.5.3'
+	implementation "dnsjava:dnsjava:3.5.3"
+
+	include "com.illposed.osc:javaosc-core:0.8"
+	include "dnsjava:dnsjava:3.5.3"
 }
 
 processResources {

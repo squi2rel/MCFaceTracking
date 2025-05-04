@@ -6,11 +6,14 @@
     "CuboidAccessor",
     "ModelPartAccessor",
     "ModelPartDataMixin",
-    "PlayerModelMixin",
+    "PlayerEntityModelMixin",
+    "PlayerEntityRendererMixin",
     "QuadAccessor",
     "VertexAccessor"
   ],
   "injectors": {
     "defaultRequire": 1
-	}
+  },
+  "mixins": [
+  ]
 }

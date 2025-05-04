@@ -1,7 +1,7 @@
 package com.github.squi2rel.mcft.mixin.client;
 
-import com.github.squi2rel.mcft.ModelPartDataExtension;
 import com.github.squi2rel.mcft.FTCuboid;
+import com.github.squi2rel.mcft.ext.ModelPartDataExtension;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelPartData;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;

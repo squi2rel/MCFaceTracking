@@ -9,9 +9,9 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.squi2rel.mcft.MCFT;
+import com.github.squi2rel.mcft.MCFTClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.session.Session;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -24,7 +24,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class HTTP {
-    public static final int port = 8999;
+    public static final int port = MCFTClient.config.httpPort;
     public static void init() throws IOException {
         createInfo();
         Thread http = new Thread(() -> {
@@ -46,7 +46,7 @@ public class HTTP {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                MCFT.LOGGER.info("HTTP start failed", e);
             }
         });
         http.setDaemon(true);
@@ -62,7 +62,7 @@ public class HTTP {
 
     private static void createInfo() throws IOException { //v2
         File root = new File(System.getenv("localappdata") + "Low", "VRChat/VRChat/OSC/MCFT/Avatars");
-        root.mkdirs();
+        if (!root.exists() && !root.mkdirs()) throw new IOException();
         Session s = MinecraftClient.getInstance().getSession();
         File child = new File(root, s.getUuidOrNull() + ".json");
         ObjectMapper mapper = new ObjectMapper();
