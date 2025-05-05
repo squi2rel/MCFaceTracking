@@ -31,8 +31,11 @@ public class MCFT implements ModInitializer {
 		TrackingUpdatePayload.register();
 		ServerPlayNetworking.registerGlobalReceiver(TrackingParamsPayload.ID, (payload, context) -> {
 			ServerPlayerEntity p = context.player();
-			if (models.get(p.getUuid()) == null) LOGGER.info("玩家 {} 正在使用MCFT", Objects.requireNonNull(p.getDisplayName()).getString());
-			models.put(p.getUuid(), new FTModel(payload.eyeR(), payload.eyeL(), payload.mouth()));
+			FTModel old = models.get(p.getUuid());
+			if (old == null) LOGGER.info("玩家 {} 正在使用MCFT", Objects.requireNonNull(p.getDisplayName()).getString());
+			FTModel now = new FTModel(payload.eyeR(), payload.eyeL(), payload.mouth(), payload.flat());
+            if (old != null) now.enabled = old.enabled;
+            models.put(p.getUuid(), now);
 		});
 		ServerPlayNetworking.registerGlobalReceiver(TrackingUpdatePayload.ID, (payload, context) -> {
 			ServerPlayerEntity p = context.player();
@@ -42,7 +45,7 @@ public class MCFT implements ModInitializer {
 			if (!model.enabled) {
 				model.enabled = true;
 				LOGGER.info("玩家 {} 已连接OSC", Objects.requireNonNull(p.getDisplayName()).getString());
-				TrackingParamsPayload packet = new TrackingParamsPayload(p.getUuid(), model.eyeR, model.eyeL, model.mouth);
+				TrackingParamsPayload packet = new TrackingParamsPayload(p.getUuid(), model.eyeR, model.eyeL, model.mouth, model.isFlat);
 				for (ServerPlayerEntity player : PlayerLookup.all(Objects.requireNonNull(p.getServer()))) {
 					if (player.equals(p)) continue;
 					ServerPlayNetworking.send(player, packet);
@@ -55,7 +58,7 @@ public class MCFT implements ModInitializer {
 			}
 		});
 		ServerPlayConnectionEvents.JOIN.register((h, s, c) -> models.forEach((u, m) -> {
-			if (m.enabled) ServerPlayNetworking.send(h.getPlayer(), new TrackingParamsPayload(u, m.eyeR, m.eyeL, m.mouth));
+			if (m.enabled) ServerPlayNetworking.send(h.getPlayer(), new TrackingParamsPayload(u, m.eyeR, m.eyeL, m.mouth, m.isFlat));
 		}));
 		ServerPlayConnectionEvents.DISCONNECT.register((h, s) -> models.remove(h.getPlayer().getUuid()));
 	}

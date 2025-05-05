@@ -10,22 +10,24 @@ public class FTModel {
     public EyeTrackingRect eyeR = new EyeTrackingRect(0, 0, 0, 0);
     public EyeTrackingRect eyeL = new EyeTrackingRect(0, 0, 0, 0);
     public MouthTrackingRect mouth = new MouthTrackingRect(0, 0, 0, 0);
+    public boolean isFlat = false;
     public transient boolean enabled = false;
     public transient long lastReceived = 0;
 
     public FTModel() {
     }
 
-    public FTModel(EyeTrackingRect eyeR, EyeTrackingRect eyeL, MouthTrackingRect mouth) {
+    public FTModel(EyeTrackingRect eyeR, EyeTrackingRect eyeL, MouthTrackingRect mouth, boolean isFlat) {
         this.eyeR = eyeR;
         this.eyeL = eyeL;
         this.mouth = mouth;
+        this.isFlat = isFlat;
     }
 
     public void update() {
         eyeR.update();
         eyeL.update();
-        mouth.update();
+        if (!isFlat) mouth.update();
     }
 
     public boolean active() {

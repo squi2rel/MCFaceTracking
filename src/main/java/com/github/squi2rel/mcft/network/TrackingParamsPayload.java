@@ -11,7 +11,7 @@ import net.minecraft.util.Identifier;
 
 import java.util.UUID;
 
-public record TrackingParamsPayload(UUID player, EyeTrackingRect eyeR, EyeTrackingRect eyeL, MouthTrackingRect mouth) implements CustomPayload {
+public record TrackingParamsPayload(UUID player, EyeTrackingRect eyeR, EyeTrackingRect eyeL, MouthTrackingRect mouth, boolean flat) implements CustomPayload {
     public static final Identifier TRACKING_PARAMS_PAYLOAD_ID = Identifier.of(MCFT.MOD_ID, "tracking_params");
     public static final CustomPayload.Id<TrackingParamsPayload> ID = new CustomPayload.Id<>(TRACKING_PARAMS_PAYLOAD_ID);
     public static final PacketCodec<PacketByteBuf, TrackingParamsPayload> CODEC = PacketCodec.of((p, buf) -> {
@@ -19,7 +19,8 @@ public record TrackingParamsPayload(UUID player, EyeTrackingRect eyeR, EyeTracki
         p.eyeR.write(buf);
         p.eyeL.write(buf);
         p.mouth.write(buf);
-    }, buf -> new TrackingParamsPayload(buf.readUuid(), EyeTrackingRect.read(buf), EyeTrackingRect.read(buf), MouthTrackingRect.read(buf)));
+        buf.writeBoolean(p.flat);
+    }, buf -> new TrackingParamsPayload(buf.readUuid(), EyeTrackingRect.read(buf), EyeTrackingRect.read(buf), MouthTrackingRect.read(buf), buf.readBoolean()));
 
     @Override
     public Id<? extends CustomPayload> getId() {

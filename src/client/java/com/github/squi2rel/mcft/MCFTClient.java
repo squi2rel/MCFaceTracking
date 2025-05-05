@@ -43,7 +43,7 @@ public class MCFTClient implements ClientModInitializer {
             throw new RuntimeException(e);
         }
 
-        ClientPlayNetworking.registerGlobalReceiver(TrackingParamsPayload.ID, (p, context) -> context.client().execute(() -> uuidToModel.put(p.player(), new FTModel(p.eyeR(), p.eyeL(), p.mouth()))));
+        ClientPlayNetworking.registerGlobalReceiver(TrackingParamsPayload.ID, (p, context) -> context.client().execute(() -> uuidToModel.put(p.player(), new FTModel(p.eyeR(), p.eyeL(), p.mouth(), p.flat()))));
         ClientPlayNetworking.registerGlobalReceiver(TrackingUpdatePayload.ID, (p, context) -> context.client().execute(() -> {
             FTModel model = uuidToModel.get(p.player());
             if (model == null) return;

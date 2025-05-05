@@ -4,7 +4,7 @@ import com.github.squi2rel.mcft.mixin.client.CuboidAccessor;
 import com.github.squi2rel.mcft.mixin.client.QuadAccessor;
 import com.github.squi2rel.mcft.mixin.client.VertexAccessor;
 import com.github.squi2rel.mcft.tracking.EyeTrackingRect;
-import com.github.squi2rel.mcft.tracking.TrackingRect;
+import com.github.squi2rel.mcft.tracking.MouthTrackingRect;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -76,7 +76,13 @@ public class FTCuboid extends ModelPart.Cuboid {
         Matrix4f posMat = entry.getPositionMatrix();
         EyeTrackingRect r = model.eyeR;
         EyeTrackingRect l = model.eyeL;
-        TrackingRect m = model.mouth;
+        MouthTrackingRect m = model.mouth;
+        if (model.isFlat) {
+            drawFace(posMat, buffer, 0, 0, 8, 8);
+            drawEyeFlat(entry, buffer, r, m);
+            drawEyeFlat(entry, buffer, l, m);
+            return;
+        }
         drawFace(posMat, buffer, 0, 0, r.x, r.y);
         drawFace(posMat, buffer, r.x, 0, r.w, r.y - r.ih);
         drawFace(posMat, buffer, r.x + r.w, 0, l.x - r.x - r.w, m.y - m.h);
@@ -92,11 +98,19 @@ public class FTCuboid extends ModelPart.Cuboid {
 
     private void drawEye(MatrixStack.Entry entry, VertexConsumer buffer, EyeTrackingRect e) {
         Matrix4f posMat = entry.getPositionMatrix();
-        drawCube(entry, buffer, e.x - 4, e.y - e.ih - 8, -2, e.inner.u1, e.inner.v1, e.x + e.w - 4, e.y - 8, -4f, e.inner.u2, e.inner.v2, true, true, true);
+        drawCube(entry, buffer, e.x - 4, e.y - e.ih - 8, -2, e.inner.u1, e.inner.v2, e.x + e.w - 4, e.y - 8, -4f, e.inner.u2, e.inner.v1, true, true, true);
         drawQuad(posMat, buffer, e.x - 4, e.y - 8, e.inner.u1, e.inner.v2, e.x + e.w - 4, e.y - e.ih - 8, e.inner.u2, e.inner.v1, -3.9f);
         drawCube(entry, buffer, e.x + (e.w - e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih + e.ball.h) / 2 + e.ball.y - 8, -3, e.ball.u1, e.ball.v1, e.x + (e.w + e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih - e.ball.h) / 2 + e.ball.y - 8, -3.95f, e.ball.u2, e.ball.v2, false, false, true);
         drawQuad(posMat, buffer, e.x - 4, e.y - e.ih - 8, e.lid.u1, e.lid.v2, e.x + e.w - 4, e.y - e.h - 8, e.lid.u2, e.lid.v1);
-        drawCube(entry, buffer, e.x - 4, e.y - e.h - 0.1f - 8, -4, e.lid.u1, e.lid.v2, e.x + e.w - 4, e.y - e.h - 8, -4.1f, e.lid.u2, e.lid.v1, false, false, true);
+        drawCube(entry, buffer, e.x - 4, e.y - e.h - 0.1f - 8, -4, e.lid.u1, e.lid.v2 - 0.0001f, e.x + e.w - 4, e.y - e.h - 8, -4.1f, e.lid.u2, e.lid.v2, false, false, true);
+    }
+
+    private void drawEyeFlat(MatrixStack.Entry entry, VertexConsumer buffer, EyeTrackingRect e, MouthTrackingRect brow) {
+        Matrix4f posMat = entry.getPositionMatrix();
+        drawQuad(posMat, buffer, e.x - 4, e.y - 8, e.inner.u1, e.inner.v2, e.x + e.w - 4, e.y - e.ih - 8, e.inner.u2, e.inner.v1, -4.005f);
+        drawQuad(posMat, buffer, e.x + (e.w - e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih - e.ball.h) / 2 + e.ball.y - 8, e.ball.u1, e.ball.v2, e.x + (e.w + e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih + e.ball.h) / 2 + e.ball.y - 8, e.ball.u2, e.ball.v1, -4.01f);
+        drawQuad(posMat, buffer, e.x - 4, e.y - e.h - 8, e.lid.u1, e.lid.v2, e.x + e.w - 4, e.y - e.ih - 8, e.lid.u2, e.lid.v1, -4.015f);
+        drawQuad(posMat, buffer, e.x - 4, e.y - e.h - brow.h - 1 - 8, brow.u1, brow.v2, e.x + e.w - 4, e.y - e.h - brow.h - 2 - 8, brow.u2, brow.v1, -4.02f);
     }
 
     private void drawCube(MatrixStack.Entry entry, VertexConsumer buffer, float x1, float y1, float z1, float u1, float v1, float x2, float y2, float z2, float u2, float v2, boolean inner, boolean skipFront, boolean skipBack) {

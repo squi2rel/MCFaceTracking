@@ -12,7 +12,7 @@ import java.util.Objects;
 public class FTClient {
 
     public static void uploadParams(FTModel model) {
-        ClientPlayNetworking.send(new TrackingParamsPayload(Objects.requireNonNull(MinecraftClient.getInstance().player).getUuid(), model.eyeR, model.eyeL, model.mouth));
+        ClientPlayNetworking.send(new TrackingParamsPayload(Objects.requireNonNull(MinecraftClient.getInstance().player).getUuid(), model.eyeR, model.eyeL, model.mouth, model.isFlat));
     }
 
     public static void writeSync(FTModel model) {

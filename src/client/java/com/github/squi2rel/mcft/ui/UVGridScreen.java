@@ -10,6 +10,8 @@ import net.minecraft.util.Identifier;
 
 import java.util.Objects;
 
+import static com.github.squi2rel.mcft.FTModel.model;
+
 public class UVGridScreen extends GridScreen {
     public static Selection eyeL, eyeR, mouth, lid, inner;
 
@@ -22,15 +24,28 @@ public class UVGridScreen extends GridScreen {
         super.init();
         int btnWidth = 100;
         int btnHeight = 20;
-        int y = height / 10;
-        addDrawableChild(ButtonWidget.builder(Text.of("重置"), b -> inner = lid = eyeL = eyeR = mouth = null).dimensions(btnWidth - width / 2 + 150, y + btnHeight + 2, btnWidth, btnHeight).build());
-        addDrawableChild(ButtonWidget.builder(Text.of("标记眼眶材质"), b -> inner = getSelection()).dimensions(btnWidth - width / 2 + 150, y + (btnHeight + 2) * 2, btnWidth, btnHeight).build());
-        addDrawableChild(ButtonWidget.builder(Text.of("标记眼皮材质"), b -> lid = getSelection()).dimensions(btnWidth - width / 2 + 150, y + (btnHeight + 2) * 3, btnWidth, btnHeight).build());
-        addDrawableChild(ButtonWidget.builder(Text.of("标记左眼材质"), b -> eyeL = getSelection()).dimensions(btnWidth - width / 2 + 150, y + (btnHeight + 2) * 4, btnWidth, btnHeight).build());
-        addDrawableChild(ButtonWidget.builder(Text.of("标记右眼材质"), b -> eyeR = getSelection()).dimensions(btnWidth - width / 2 + 150, y + (btnHeight + 2) * 5, btnWidth, btnHeight).build());
-        addDrawableChild(ButtonWidget.builder(Text.of("标记嘴巴材质"), b -> mouth = getSelection()).dimensions(btnWidth - width / 2 + 150, y + (btnHeight + 2) * 6, btnWidth, btnHeight).build());
-        addDrawableChild(ButtonWidget.builder(Text.of("下一步"), b -> MinecraftClient.getInstance().setScreen(new AvatarGridScreen())).dimensions(btnWidth - width / 2 + 150, y + (btnHeight + 2) * 7, btnWidth, btnHeight).build());
-        addDrawableChild(ButtonWidget.builder(Text.of("关闭"), b -> MinecraftClient.getInstance().setScreen(null)).dimensions(btnWidth - width / 2 + 150, y + (btnHeight + 2) * 8, btnWidth, btnHeight).build());
+        int buttons = 9;
+        int totalHeight = buttons * btnHeight + (buttons - 1) * 2;
+        int y = (this.height - totalHeight) / 2;
+        WidgetGroup group3D = new WidgetGroup();
+        WidgetGroup groupFlat = new WidgetGroup();
+        addDrawableChild(ButtonWidget.builder(Text.of(model.isFlat ? "切换为3D模型" : "切换为平面模型"), b -> {
+            model.isFlat = !model.isFlat;
+            b.setMessage(Text.of(model.isFlat ? "切换为3D模型" : "切换为平面模型"));
+            groupFlat.visible(model.isFlat);
+            group3D.visible(!model.isFlat);
+        }).dimensions(20, y, btnWidth, btnHeight).build());
+        addDrawableChild(ButtonWidget.builder(Text.of("标记眼白材质"), b -> inner = getSelection()).dimensions(20, y + btnHeight + 2, btnWidth, btnHeight).build());
+        addDrawableChild(ButtonWidget.builder(Text.of("标记眼皮材质"), b -> lid = getSelection()).dimensions(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight).build());
+        addDrawableChild(ButtonWidget.builder(Text.of("标记左眼珠材质"), b -> eyeL = getSelection()).dimensions(20, y + (btnHeight + 2) * 3, btnWidth, btnHeight).build());
+        addDrawableChild(ButtonWidget.builder(Text.of("标记右眼珠材质"), b -> eyeR = getSelection()).dimensions(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight).build());
+        group3D.add(ButtonWidget.builder(Text.of("标记嘴巴材质"), b -> mouth = getSelection()).dimensions(20, y + (btnHeight + 2) * 5, btnWidth, btnHeight).build());
+        groupFlat.add(ButtonWidget.builder(Text.of("标记眉毛材质"), b -> mouth = getSelection()).dimensions(20, y + (btnHeight + 2) * 5, btnWidth, btnHeight).build());
+        addDrawableChild(ButtonWidget.builder(Text.of("下一步"), b -> MinecraftClient.getInstance().setScreen(new AvatarGridScreen())).dimensions(20, y + (btnHeight + 2) * 6, btnWidth, btnHeight).build());
+        addDrawableChild(ButtonWidget.builder(Text.of("重置"), b -> inner = lid = eyeL = eyeR = mouth = null).dimensions(20, y + (btnHeight + 2) * 7, btnWidth, btnHeight).build());
+        addDrawableChild(ButtonWidget.builder(Text.of("关闭"), b -> MinecraftClient.getInstance().setScreen(null)).dimensions(20, y + (btnHeight + 2) * 8, btnWidth, btnHeight).build());
+        groupFlat.visible(model.isFlat);
+        group3D.visible(!model.isFlat);
         gridX = width / 2 + 50;
         gridY = height / 4;
     }
