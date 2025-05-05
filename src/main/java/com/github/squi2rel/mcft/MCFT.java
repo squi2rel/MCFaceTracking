@@ -57,6 +57,7 @@ public class MCFT implements ModInitializer {
 		ServerPlayConnectionEvents.JOIN.register((h, s, c) -> models.forEach((u, m) -> {
 			if (m.enabled) ServerPlayNetworking.send(h.getPlayer(), new TrackingParamsPayload(u, m.eyeR, m.eyeL, m.mouth));
 		}));
+		ServerPlayConnectionEvents.DISCONNECT.register((h, s) -> models.remove(h.getPlayer().getUuid()));
 	}
 
 	public static <T> T loadConfig(Class<T> clazz, Path path) {

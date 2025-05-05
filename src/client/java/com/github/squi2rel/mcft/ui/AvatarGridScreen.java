@@ -64,11 +64,11 @@ public class AvatarGridScreen extends GridScreen {
             writeConfig();
             MinecraftClient.getInstance().setScreen(null);
         }).dimensions(btnWidth - width / 2 + 150, y + (btnHeight + 2) * 8, btnWidth, btnHeight).build());
-        eyeW = previewGroup.add(SettingsSlider.floatSlider(btnWidth - width / 2 + 150, y + btnHeight + 2, btnWidth, btnHeight, 0.75f, 0.5f, 1.5f, f -> {
+        eyeW = previewGroup.add(SettingsSlider.floatSlider(btnWidth - width / 2 + 150, y + btnHeight + 2, btnWidth, btnHeight, model.eyeR.ball.w, 0.25f, 3f, f -> {
             if (model.eyeR != null) model.eyeR.ball.w = f;
             if (model.eyeL != null) model.eyeL.ball.w = f;
         }, f -> String.format("眼球宽度: %.2f", f)));
-        eyeH = previewGroup.add(SettingsSlider.floatSlider(btnWidth - width / 2 + 150, y + (btnHeight + 2) * 2, btnWidth, btnHeight, 0.75f, 0.5f, 1.5f, f -> {
+        eyeH = previewGroup.add(SettingsSlider.floatSlider(btnWidth - width / 2 + 150, y + (btnHeight + 2) * 2, btnWidth, btnHeight, model.eyeR.ball.h, 0.25f, 3f, f -> {
             if (model.eyeR != null) model.eyeR.ball.h = f;
             if (model.eyeL != null) model.eyeL.ball.h = f;
         }, f -> String.format("眼球高度: %.2f", f)));

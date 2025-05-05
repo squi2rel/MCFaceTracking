@@ -87,26 +87,26 @@ public class FTCuboid extends ModelPart.Cuboid {
         drawFace(posMat, buffer, m.x, m.y, m.w, 8 - m.y);
         drawEye(entry, buffer, r);
         drawEye(entry, buffer, l);
-        drawCube(entry, buffer, m.x - 4, m.y - m.h - 8, -3, m.u1, m.v1, m.x + m.w - 4, m.y - 8, -4, m.u2, m.v2, Direction.NORTH, true);
+        drawCube(entry, buffer, m.x - 4, m.y - m.h - 8, -3, m.u1, m.v1, m.x + m.w - 4, m.y - 8, -4, m.u2, m.v2, true, true, false);
     }
 
     private void drawEye(MatrixStack.Entry entry, VertexConsumer buffer, EyeTrackingRect e) {
         Matrix4f posMat = entry.getPositionMatrix();
-        drawCube(entry, buffer, e.x - 4, e.y - e.h - 8, -2, e.inner.u1, e.inner.v1, e.x + e.w - 4, e.y - 8, -4f, e.inner.u2, e.inner.v2, Direction.NORTH, true);
-        drawQuad(posMat, buffer, e.x - 4, e.y - e.h - 8, e.inner.u1, e.inner.v1, e.x + e.w - 4, e.y - 8, e.inner.u2, e.inner.v2, -3.9f);
-        drawCube(entry, buffer, e.x + (e.w - e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih + e.ball.h) / 2 + e.ball.y - 8, -2, e.ball.u1, e.ball.v1, e.x + (e.w + e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih - e.ball.h) / 2 + e.ball.y - 8, -3.95f, e.ball.u2, e.ball.v2, Direction.SOUTH, false);
-        drawQuad(posMat, buffer, e.x - 4, e.y - e.h - 8, e.lid.u1, e.lid.v1, e.x + e.w - 4, e.y - e.ih - 8, e.lid.u2, e.lid.v2);
-        drawCube(entry, buffer, e.x - 4, e.y - e.h - 8, -4, e.lid.u1, e.lid.v1, e.x + e.w - 4, e.y - e.h - 0.1f - 8, -4.1f, e.lid.u2, e.lid.v2, Direction.SOUTH, false);
+        drawCube(entry, buffer, e.x - 4, e.y - e.ih - 8, -2, e.inner.u1, e.inner.v1, e.x + e.w - 4, e.y - 8, -4f, e.inner.u2, e.inner.v2, true, true, true);
+        drawQuad(posMat, buffer, e.x - 4, e.y - 8, e.inner.u1, e.inner.v2, e.x + e.w - 4, e.y - e.ih - 8, e.inner.u2, e.inner.v1, -3.9f);
+        drawCube(entry, buffer, e.x + (e.w - e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih + e.ball.h) / 2 + e.ball.y - 8, -3, e.ball.u1, e.ball.v1, e.x + (e.w + e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih - e.ball.h) / 2 + e.ball.y - 8, -3.95f, e.ball.u2, e.ball.v2, false, false, true);
+        drawQuad(posMat, buffer, e.x - 4, e.y - e.ih - 8, e.lid.u1, e.lid.v2, e.x + e.w - 4, e.y - e.h - 8, e.lid.u2, e.lid.v1);
+        drawCube(entry, buffer, e.x - 4, e.y - e.h - 0.1f - 8, -4, e.lid.u1, e.lid.v2, e.x + e.w - 4, e.y - e.h - 8, -4.1f, e.lid.u2, e.lid.v1, false, false, true);
     }
 
-    private void drawCube(MatrixStack.Entry entry, VertexConsumer buffer, float x1, float y1, float z1, float u1, float v1, float x2, float y2, float z2, float u2, float v2, Direction skip, boolean inner) {
+    private void drawCube(MatrixStack.Entry entry, VertexConsumer buffer, float x1, float y1, float z1, float u1, float v1, float x2, float y2, float z2, float u2, float v2, boolean inner, boolean skipFront, boolean skipBack) {
         Matrix4f posMat = entry.getPositionMatrix();
-        if (skip != Direction.NORTH) drawQuad(posMat, buffer, x1, y1, z2, u1, v1, x2, y1, z2, u2, v1, x2, y2, z2, u2, v2, x1, y2, z2, u1, v2, entry.transformNormal((inner ? Direction.SOUTH : Direction.NORTH).getUnitVector(), tmp));
-        if (skip != Direction.SOUTH) drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x1, y2, z1, u1, v2, x2, y2, z1, u2, v2, x2, y1, z1, u2, v1, entry.transformNormal((inner ? Direction.NORTH : Direction.SOUTH).getUnitVector(), tmp));
-        if (skip != Direction.WEST) drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x1, y1, z2, u2, v1, x1, y2, z2, u2, v2, x1, y2, z1, u1, v2, entry.transformNormal((inner ? Direction.EAST : Direction.WEST).getUnitVector(), tmp));
-        if (skip != Direction.EAST) drawQuad(posMat, buffer, x2, y1, z1, u1, v1, x2, y1, z2, u2, v1, x2, y2, z2, u2, v2, x2, y2, z1, u1, v2, entry.transformNormal((inner ? Direction.WEST : Direction.EAST).getUnitVector(), tmp));
-        if (skip != Direction.UP) drawQuad(posMat, buffer, x1, y2, z1, u1, v1, x1, y2, z2, u1, v2, x2, y2, z2, u2, v2, x2, y2, z1, u2, v1, entry.transformNormal((inner ? Direction.DOWN : Direction.UP).getUnitVector(), tmp));
-        if (skip != Direction.DOWN) drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x2, y1, z1, u2, v1, x2, y1, z2, u2, v2, x1, y1, z2, u1, v2, entry.transformNormal((inner ? Direction.UP : Direction.DOWN).getUnitVector(), tmp));
+        if (!skipFront) drawQuad(posMat, buffer, x1, y1, z2, u1, v1, x1, y2, z2, u1, v2, x2, y2, z2, u2, v2, x2, y1, z2, u2, v1, entry.transformNormal((inner ? Direction.SOUTH : Direction.NORTH).getUnitVector(), tmp));
+        if (!skipBack) drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x1, y2, z1, u1, v2, x2, y2, z1, u2, v2, x2, y1, z1, u2, v1, entry.transformNormal((inner ? Direction.NORTH : Direction.SOUTH).getUnitVector(), tmp));
+        drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x1, y1, z2, u2, v1, x1, y2, z2, u2, v2, x1, y2, z1, u1, v2, entry.transformNormal((inner ? Direction.EAST : Direction.WEST).getUnitVector(), tmp));
+        drawQuad(posMat, buffer, x2, y1, z1, u1, v1, x2, y1, z2, u2, v1, x2, y2, z2, u2, v2, x2, y2, z1, u1, v2, entry.transformNormal((inner ? Direction.WEST : Direction.EAST).getUnitVector(), tmp));
+        drawQuad(posMat, buffer, x1, y2, z1, u1, v1, x1, y2, z2, u1, v2, x2, y2, z2, u2, v2, x2, y2, z1, u2, v1, entry.transformNormal((inner ? Direction.DOWN : Direction.UP).getUnitVector(), tmp));
+        drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x2, y1, z1, u2, v1, x2, y1, z2, u2, v2, x1, y1, z2, u1, v2, entry.transformNormal((inner ? Direction.UP : Direction.DOWN).getUnitVector(), tmp));
     }
 
     private void drawFace(Matrix4f posMat, VertexConsumer buffer, float x, float y, float w, float h) {
@@ -118,7 +118,7 @@ public class FTCuboid extends ModelPart.Cuboid {
     }
 
     private void drawQuad(Matrix4f posMat, VertexConsumer buffer, float x1, float y1, float u1, float v1, float x2, float y2, float u2, float v2) {
-        drawQuad(posMat, buffer, x1, y1, u1, v1, x2, y1, u2, v1, x2, y2, u2, v2, x1, y2, u1, v2);
+        drawQuad(posMat, buffer, x1, y1, u1, v1, x1, y2, u1, v2, x2, y2, u2, v2, x2, y1, u2, v1);
     }
 
     private void drawQuad(Matrix4f posMat, VertexConsumer buffer, float x1, float y1, float u1, float v1, float x2, float y2, float u2, float v2, float z) {
