@@ -164,6 +164,14 @@ public abstract class GridScreen extends Screen {
             this.setMessage(Text.of(textProvider.apply(converter.apply(MathHelper.lerp(MathHelper.clamp(this.value, 0.0, 1.0), this.min, this.max)))));
         }
 
+        public void setValue(T number) {
+            double newValue = (MathHelper.clamp(number.doubleValue(), min, max) - min) / (max - min);
+            if (newValue == value) return;
+            value = newValue;
+            applyValue();
+            updateMessage();
+        }
+
         public static SettingsSlider<Float> floatSlider(int x, int y, int width, int height, float value, float min, float max, Consumer<Float> callback, Function<Float, String> textProvider) {
             return new SettingsSlider<>(x, y, width, height, value, min, max, callback, textProvider, Double::floatValue);
         }

@@ -1,5 +1,6 @@
 package com.github.squi2rel.mcft;
 
+import com.github.squi2rel.mcft.network.ConfigPayload;
 import com.github.squi2rel.mcft.network.TrackingParamsPayload;
 import com.github.squi2rel.mcft.network.TrackingUpdatePayload;
 import com.github.squi2rel.mcft.services.DNS;
@@ -25,8 +26,9 @@ import static com.github.squi2rel.mcft.FTModel.model;
 @SuppressWarnings("resource")
 public class MCFTClient implements ClientModInitializer {
     private static long lastSync = System.currentTimeMillis();
-    private static final int fps = 30;
+    private static int fps = -1;
     private static boolean configScreen = false;
+    public static boolean connected = false;
     public static HashMap<UUID, FTModel> uuidToModel = new HashMap<>();
     public static Config config;
     public static final Path configPath = FabricLoader.getInstance().getConfigDir().resolve("mcft.json");
@@ -44,11 +46,21 @@ public class MCFTClient implements ClientModInitializer {
         }
 
         ClientPlayNetworking.registerGlobalReceiver(TrackingParamsPayload.ID, (p, context) -> context.client().execute(() -> uuidToModel.put(p.player(), new FTModel(p.eyeR(), p.eyeL(), p.mouth(), p.flat()))));
+
         ClientPlayNetworking.registerGlobalReceiver(TrackingUpdatePayload.ID, (p, context) -> context.client().execute(() -> {
             FTModel model = uuidToModel.get(p.player());
             if (model == null) return;
             model.readSync(p.data());
         }));
+
+        ClientPlayNetworking.registerGlobalReceiver(ConfigPayload.ID, (p, context) -> context.client().execute(() -> {
+            fps = p.fps();
+            if (!connected) MCFT.LOGGER.info("检测到服务端MCFT");
+            connected = true;
+            FTClient.uploadParams(model);
+        }));
+
+        ClientPlayConnectionEvents.DISCONNECT.register((h, c) -> connected = false);
 
         WorldRenderEvents.LAST.register(e -> {
             if (model.active() && System.currentTimeMillis() - lastSync > 1000 / fps) {
@@ -61,8 +73,6 @@ public class MCFTClient implements ClientModInitializer {
             configScreen = true;
             return 1;
         })));
-
-        ClientPlayConnectionEvents.JOIN.register((h, s, c) -> FTClient.uploadParams(model));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player == null || client.world == null) return;

@@ -1,7 +1,6 @@
 package com.github.squi2rel.mcft.services;
 
 import com.github.squi2rel.mcft.MCFT;
-import com.github.squi2rel.mcft.MCFTClient;
 import com.illposed.osc.MessageSelector;
 import com.illposed.osc.OSCMessage;
 import com.illposed.osc.OSCMessageEvent;
@@ -15,22 +14,23 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static com.github.squi2rel.mcft.FTModel.model;
+import static com.github.squi2rel.mcft.MCFTClient.config;
 
 public class OSC {
     public static long lastReceived = 0;
     public static Map<String, Consumer<List<Object>>> allParameters = Map.ofEntries(
-            Map.entry("EyeLeftX", f -> model.eyeL.rawPos.x = (float) f.getFirst() * 0.3f),
-            Map.entry("EyeLeftY", f -> model.eyeL.rawPos.y = (float) f.getFirst() * -0.5f),
+            Map.entry("EyeLeftX", f -> model.eyeL.rawPos.x = (float) f.getFirst() * config.eyeXMul),
+            Map.entry("EyeLeftY", f -> model.eyeL.rawPos.y = (float) f.getFirst() * -config.eyeYMul),
             Map.entry("EyeLidLeft", f -> model.eyeL.percent = (float) f.getFirst()),
-            Map.entry("EyeRightX", f -> model.eyeR.rawPos.x = (float) f.getFirst() * 0.3f),
-            Map.entry("EyeRightY", f -> model.eyeR.rawPos.y = (float) f.getFirst() * -0.5f),
+            Map.entry("EyeRightX", f -> model.eyeR.rawPos.x = (float) f.getFirst() * config.eyeXMul),
+            Map.entry("EyeRightY", f -> model.eyeR.rawPos.y = (float) f.getFirst() * -config.eyeYMul),
             Map.entry("EyeLidRight", f -> model.eyeR.percent = (float) f.getFirst()),
             Map.entry("JawOpen", f -> model.mouth.percent = (float) f.getFirst())
     );
 
     public static void init() throws Exception {
-        OSCPortIn receiver = new OSCPortIn(new InetSocketAddress("localhost", MCFTClient.config.oscReceivePort));
-        OSCPortOut sender = new OSCPortOut(new InetSocketAddress("localhost", MCFTClient.config.oscSendPort));
+        OSCPortIn receiver = new OSCPortIn(new InetSocketAddress("localhost", config.oscReceivePort));
+        OSCPortOut sender = new OSCPortOut(new InetSocketAddress("localhost", config.oscSendPort));
         receiver.getDispatcher().addListener(new MessageSelector() {
             @Override
             public boolean isInfoRequired() {

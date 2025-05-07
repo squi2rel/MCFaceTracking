@@ -12,11 +12,12 @@ import java.util.Objects;
 public class FTClient {
 
     public static void uploadParams(FTModel model) {
+        if (!MCFTClient.connected) return;
         ClientPlayNetworking.send(new TrackingParamsPayload(Objects.requireNonNull(MinecraftClient.getInstance().player).getUuid(), model.eyeR, model.eyeL, model.mouth, model.isFlat));
     }
 
     public static void writeSync(FTModel model) {
-        if (!model.active()) return;
+        if (!MCFTClient.connected || !model.active()) return;
         ByteBuf buf = PooledByteBufAllocator.DEFAULT.heapBuffer();
         try {
             model.eyeR.writeSync(buf);

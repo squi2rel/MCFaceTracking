@@ -5,9 +5,9 @@ import io.netty.buffer.ByteBuf;
 public class EyeTrackingRect extends TrackingRect {
     public transient float percent;
     public Rect rawPos = new Rect();
-    public SizeTrackingRect ball = new SizeTrackingRect();
-    public TrackingRect lid = new SizeTrackingRect();
-    public TrackingRect inner = new SizeTrackingRect();
+    public TrackingRect ball = new TrackingRect();
+    public TrackingRect lid = new TrackingRect();
+    public TrackingRect inner = new TrackingRect();
 
     public EyeTrackingRect(float x, float y, float w, float h) {
         super(x, y, w, h);
@@ -17,14 +17,12 @@ public class EyeTrackingRect extends TrackingRect {
     public void writeSync(ByteBuf buf) {
         buf.writeFloat(percent);
         Rect.writePos(rawPos, buf);
-        ball.writeSync(buf);
     }
 
     @Override
     public void readSync(ByteBuf buf) {
         percent = buf.readFloat();
         Rect.readPos(rawPos, buf);
-        ball.readSync(buf);
     }
 
     protected EyeTrackingRect(

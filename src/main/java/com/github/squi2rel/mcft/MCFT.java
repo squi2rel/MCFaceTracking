@@ -1,5 +1,6 @@
 package com.github.squi2rel.mcft;
 
+import com.github.squi2rel.mcft.network.ConfigPayload;
 import com.github.squi2rel.mcft.network.TrackingParamsPayload;
 import com.github.squi2rel.mcft.network.TrackingUpdatePayload;
 import com.google.gson.Gson;
@@ -7,6 +8,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,15 +22,21 @@ import java.util.UUID;
 
 public class MCFT implements ModInitializer {
 	public static final String MOD_ID = "mcft";
-
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 	public static HashMap<UUID, FTModel> models = new HashMap<>();
 
+	public static final Path configPath = FabricLoader.getInstance().getConfigDir().resolve("mcft-server.json");
+	public static ServerConfig config;
+
 	@Override
 	public void onInitialize() {
+		config = loadConfig(ServerConfig.class, configPath);
+
 		TrackingParamsPayload.register();
 		TrackingUpdatePayload.register();
+		ConfigPayload.register();
+
 		ServerPlayNetworking.registerGlobalReceiver(TrackingParamsPayload.ID, (payload, context) -> {
 			ServerPlayerEntity p = context.player();
 			FTModel old = models.get(p.getUuid());
@@ -37,6 +45,7 @@ public class MCFT implements ModInitializer {
             if (old != null) now.enabled = old.enabled;
             models.put(p.getUuid(), now);
 		});
+
 		ServerPlayNetworking.registerGlobalReceiver(TrackingUpdatePayload.ID, (payload, context) -> {
 			ServerPlayerEntity p = context.player();
 			FTModel model = models.get(p.getUuid());
@@ -52,14 +61,19 @@ public class MCFT implements ModInitializer {
 				}
 			}
 			TrackingUpdatePayload packet = new TrackingUpdatePayload(p.getUuid(), payload.data());
-			for (ServerPlayerEntity player : PlayerLookup.around(p.getServerWorld(), p.getPos(), 128)) {
+			for (ServerPlayerEntity player : PlayerLookup.around(p.getServerWorld(), p.getPos(), config.syncRadius)) {
 				if (player.equals(p)) continue;
 				ServerPlayNetworking.send(player, packet);
 			}
 		});
-		ServerPlayConnectionEvents.JOIN.register((h, s, c) -> models.forEach((u, m) -> {
-			if (m.enabled) ServerPlayNetworking.send(h.getPlayer(), new TrackingParamsPayload(u, m.eyeR, m.eyeL, m.mouth, m.isFlat));
-		}));
+
+		ServerPlayConnectionEvents.JOIN.register((h, s, c) -> {
+			models.forEach((u, m) -> {
+				if (m.enabled) ServerPlayNetworking.send(h.getPlayer(), new TrackingParamsPayload(u, m.eyeR, m.eyeL, m.mouth, m.isFlat));
+			});
+			ServerPlayNetworking.send(h.getPlayer(), new ConfigPayload(config.fps));
+		});
+
 		ServerPlayConnectionEvents.DISCONNECT.register((h, s) -> models.remove(h.getPlayer().getUuid()));
 	}
 

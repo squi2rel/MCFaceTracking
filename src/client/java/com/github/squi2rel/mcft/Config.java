@@ -6,4 +6,5 @@ public class Config {
     public int oscSendPort = 9001;
 
     public FTModel model = new FTModel();
+    public float eyeXMul = 0.5f, eyeYMul = 0.3f;
 }

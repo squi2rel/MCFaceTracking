@@ -15,17 +15,16 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import static com.github.squi2rel.mcft.FTModel.model;
+import static com.github.squi2rel.mcft.MCFTClient.config;
 
 @SuppressWarnings("DataFlowIssue")
 public class AvatarGridScreen extends GridScreen {
     private boolean showOverlay = true;
     private boolean preview = false;
     private static Selection eyeL, eyeR, mouth;
-    private SettingsSlider<Float> eyeW, eyeH;
-    private final ArrayList<Selection> overlays = new ArrayList<>();
+    private SettingsSlider<Float> eyeW, eyeH, eyeX, eyeY;
 
     public AvatarGridScreen() {
         super(Text.of("编辑选区"), 8, 128);
@@ -58,24 +57,26 @@ public class AvatarGridScreen extends GridScreen {
         addDrawableChild(ButtonWidget.builder(Text.of("上一步"), b -> MinecraftClient.getInstance().setScreen(new UVGridScreen())).dimensions(20, y + (btnHeight + 2) * 6, btnWidth, btnHeight).build());
         group.add(ButtonWidget.builder(Text.of("重置"), b -> {
             eyeL = eyeR = mouth = null;
-            overlays.clear();
             MinecraftClient.getInstance().setScreen(new AvatarGridScreen());
+        }).dimensions(20, y + (btnHeight + 2) * 7, btnWidth, btnHeight).build());
+        previewGroup.add(ButtonWidget.builder(Text.of("重置"), b -> {
+            eyeW.setValue(0.75f);
+            eyeH.setValue(0.75f);
+            eyeX.setValue(0.5f);
+            eyeY.setValue(0.3f);
         }).dimensions(20, y + (btnHeight + 2) * 7, btnWidth, btnHeight).build());
         addDrawableChild(ButtonWidget.builder(Text.of("完成"), b -> {
             save();
             writeConfig();
             MinecraftClient.getInstance().setScreen(null);
         }).dimensions(20, y + (btnHeight + 2) * 8, btnWidth, btnHeight).build());
-        eyeW = previewGroup.add(SettingsSlider.floatSlider(20, y, btnWidth, btnHeight, model.eyeR.ball.w, 0.25f, 4f, f -> {
-            model.eyeR.ball.w = f;
-            model.eyeL.ball.w = f;
-        }, f -> String.format("眼球宽度: %.2f", f)));
-        eyeH = previewGroup.add(SettingsSlider.floatSlider(20, y + btnHeight + 2, btnWidth, btnHeight, model.eyeR.ball.h, 0.25f, 4f, f -> {
-            model.eyeR.ball.h = f;
-            model.eyeL.ball.h = f;
-        }, f -> String.format("眼球高度: %.2f", f)));
+        eyeW = previewGroup.add(SettingsSlider.floatSlider(20, y, btnWidth, btnHeight, model.eyeR.ball.w, 0.25f, 4f, f -> model.eyeR.ball.w = model.eyeL.ball.w = f, f -> String.format("眼球宽度: %.2f", f)));
+        eyeH = previewGroup.add(SettingsSlider.floatSlider(20, y + btnHeight + 2, btnWidth, btnHeight, model.eyeR.ball.h, 0.25f, 4f, f -> model.eyeR.ball.h = model.eyeL.ball.h = f, f -> String.format("眼球高度: %.2f", f)));
         if (model.isFlat) previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight, model.mouth.h, 0, 4f, f -> model.mouth.h = f, f -> String.format("眉毛高度: %.2f", f)));
-        previewGroup.visible(false);
+        eyeX = previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 3, btnWidth, btnHeight, config.eyeXMul, 0.1f, 2f, f -> config.eyeXMul = f, f -> String.format("眼球X轴移动倍率: %.2f", f)));
+        eyeY = previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight, config.eyeYMul, 0.1f, 2f, f -> config.eyeYMul = f, f -> String.format("眼球Y轴移动倍率: %.2f", f)));
+        group.visible(!preview);
+        previewGroup.visible(preview);
         gridX = width / 2 + 50;
         gridY = height / 4;
     }
@@ -122,9 +123,6 @@ public class AvatarGridScreen extends GridScreen {
         drawSelection(context, eyeR, 0x5500FFFF);
         drawSelection(context, eyeL, 0x55FFFF00);
         drawSelection(context, mouth, 0x55FF00FF);
-        for (Selection overlay : overlays) {
-            drawSelection(context, overlay, 0x55FFFFFF);
-        }
     }
 
     @Override

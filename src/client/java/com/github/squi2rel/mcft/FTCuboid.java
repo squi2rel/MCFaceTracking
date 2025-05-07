@@ -124,11 +124,7 @@ public class FTCuboid extends ModelPart.Cuboid {
     }
 
     private void drawFace(Matrix4f posMat, VertexConsumer buffer, float x, float y, float w, float h) {
-        drawQuad(
-                posMat, buffer,
-                x - 4, y - 8, 0.125f + x / 64, 0.125f + y / 64,
-                x + w - 4, y + h - 8, 0.125f + (x + w) / 64, 0.125f + (y + h) / 64
-        );
+        drawQuad(posMat, buffer, x - 4, y - 8, 0.125f + x / 64, 0.125f + y / 64, x + w - 4, y + h - 8, 0.125f + (x + w) / 64, 0.125f + (y + h) / 64);
     }
 
     private void drawQuad(Matrix4f posMat, VertexConsumer buffer, float x1, float y1, float u1, float v1, float x2, float y2, float u2, float v2) {
