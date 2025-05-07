@@ -49,7 +49,7 @@ public class MCFT implements ModInitializer {
 		ServerPlayNetworking.registerGlobalReceiver(TrackingUpdatePayload.ID, (payload, context) -> {
 			ServerPlayerEntity p = context.player();
 			FTModel model = models.get(p.getUuid());
-			if (model == null) return;
+			if (model == null || System.currentTimeMillis() - model.lastReceived - 10 < 1000 / config.fps) return;
 			model.readSync(payload.data());
 			if (!model.enabled) {
 				model.enabled = true;
