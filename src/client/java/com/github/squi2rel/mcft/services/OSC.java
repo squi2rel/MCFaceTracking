@@ -20,10 +20,10 @@ public class OSC {
     public static long lastReceived = 0;
     public static Map<String, Consumer<List<Object>>> allParameters = Map.ofEntries(
             Map.entry("EyeLeftX", f -> model.eyeL.rawPos.x = (float) f.getFirst() * 0.3f),
-            Map.entry("EyeLeftY", f -> model.eyeL.rawPos.y = (float) f.getFirst() * 0.5f),
+            Map.entry("EyeLeftY", f -> model.eyeL.rawPos.y = (float) f.getFirst() * -0.5f),
             Map.entry("EyeLidLeft", f -> model.eyeL.percent = (float) f.getFirst()),
             Map.entry("EyeRightX", f -> model.eyeR.rawPos.x = (float) f.getFirst() * 0.3f),
-            Map.entry("EyeRightY", f -> model.eyeR.rawPos.y = (float) f.getFirst() * 0.5f),
+            Map.entry("EyeRightY", f -> model.eyeR.rawPos.y = (float) f.getFirst() * -0.5f),
             Map.entry("EyeLidRight", f -> model.eyeR.percent = (float) f.getFirst()),
             Map.entry("JawOpen", f -> model.mouth.percent = (float) f.getFirst())
     );
