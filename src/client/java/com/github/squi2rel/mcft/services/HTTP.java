@@ -29,6 +29,8 @@ public class HTTP {
         createInfo();
         Thread http = new Thread(() -> {
             try (ServerSocket serverSocket = new ServerSocket(port)) {
+                OSC.init();
+                DNS.init();
                 while (true) {
                     try (Socket s = serverSocket.accept()) {
                         BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
@@ -46,14 +48,8 @@ public class HTTP {
                     }
                 }
             } catch (Exception e) {
-                MCFT.LOGGER.info("HTTP start failed", e);
+                MCFT.LOGGER.info("Service start failed", e);
             }
-            try {
-                OSC.init();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            DNS.init();
         });
         http.setDaemon(true);
         http.start();
