@@ -48,6 +48,12 @@ public class HTTP {
             } catch (Exception e) {
                 MCFT.LOGGER.info("HTTP start failed", e);
             }
+            try {
+                OSC.init();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            DNS.init();
         });
         http.setDaemon(true);
         http.start();

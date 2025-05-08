@@ -42,4 +42,10 @@ public class FTModel {
         if (buf.readableBytes() != 0) throw new IllegalArgumentException("buffer remaining " + buf.readableBytes() + " bytes");
         lastReceived = System.currentTimeMillis();
     }
+
+    public void validate(boolean init) {
+        eyeR.validate(init);
+        eyeL.validate(init);
+        mouth.validate(init);
+    }
 }

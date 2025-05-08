@@ -33,6 +33,19 @@ public class MouthTrackingRect extends TrackingRect {
          w = iw - a * 2;
     }
 
+    @Override
+    public void validate(boolean init) {
+        if (init) {
+            super.validate(true);
+            checkInRange(x, 0, 8);
+            checkInRange(y, 0, 8);
+            checkInRange(w, 0, 8 - x);
+            checkInRange(h, -3, 8);
+        } else {
+            checkInRange(percent, 0, 1);
+        }
+    }
+
     public static MouthTrackingRect read(ByteBuf buf) {
         Rect rect = Rect.read(buf);
         if (rect == null) return null;

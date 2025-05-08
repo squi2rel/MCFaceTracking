@@ -122,7 +122,7 @@ public class AvatarGridScreen extends GridScreen {
 
         drawSelection(context, eyeR, 0x5500FFFF);
         drawSelection(context, eyeL, 0x55FFFF00);
-        drawSelection(context, mouth, 0x55FF00FF);
+        if (!model.isFlat) drawSelection(context, mouth, 0x55FF00FF);
     }
 
     @Override

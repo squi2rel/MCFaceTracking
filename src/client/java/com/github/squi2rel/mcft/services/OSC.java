@@ -19,10 +19,10 @@ import static com.github.squi2rel.mcft.MCFTClient.config;
 public class OSC {
     public static long lastReceived = 0;
     public static Map<String, Consumer<List<Object>>> allParameters = Map.ofEntries(
-            Map.entry("EyeLeftX", f -> model.eyeL.rawPos.x = (float) f.getFirst() * config.eyeXMul),
+            Map.entry("EyeLeftX", f -> model.eyeL.rawPos.x = (float) f.getFirst() * -config.eyeXMul),
             Map.entry("EyeLeftY", f -> model.eyeL.rawPos.y = (float) f.getFirst() * -config.eyeYMul),
             Map.entry("EyeLidLeft", f -> model.eyeL.percent = (float) f.getFirst()),
-            Map.entry("EyeRightX", f -> model.eyeR.rawPos.x = (float) f.getFirst() * config.eyeXMul),
+            Map.entry("EyeRightX", f -> model.eyeR.rawPos.x = (float) f.getFirst() * -config.eyeXMul),
             Map.entry("EyeRightY", f -> model.eyeR.rawPos.y = (float) f.getFirst() * -config.eyeYMul),
             Map.entry("EyeLidRight", f -> model.eyeR.percent = (float) f.getFirst()),
             Map.entry("JawOpen", f -> model.mouth.percent = (float) f.getFirst())

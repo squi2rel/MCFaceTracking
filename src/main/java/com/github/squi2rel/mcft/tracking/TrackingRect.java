@@ -54,4 +54,16 @@ public class TrackingRect extends Rect {
 
     public void update() {
     }
+
+    public void validate(boolean init) {
+        if (!init) return;
+        checkInRange(u1, 0, 1);
+        checkInRange(v1, 0, 1);
+        checkInRange(u2, 0, 1);
+        checkInRange(v2, 0, 1);
+    }
+
+    public static void checkInRange(float val, float min, float max) {
+        if (!(val >= min && val <= max)) throw new IllegalArgumentException(String.format("%f should be between %f and %f", val, min, max));
+    }
 }

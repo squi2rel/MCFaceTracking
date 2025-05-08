@@ -42,6 +42,7 @@ public class MCFT implements ModInitializer {
 			FTModel old = models.get(p.getUuid());
 			if (old == null) LOGGER.info("玩家 {} 正在使用MCFT", Objects.requireNonNull(p.getDisplayName()).getString());
 			FTModel now = new FTModel(payload.eyeR(), payload.eyeL(), payload.mouth(), payload.flat());
+			now.validate(true);
             if (old != null) now.enabled = old.enabled;
             models.put(p.getUuid(), now);
 		});
@@ -51,6 +52,7 @@ public class MCFT implements ModInitializer {
 			FTModel model = models.get(p.getUuid());
 			if (model == null || System.currentTimeMillis() - model.lastReceived - 10 < 1000 / config.fps) return;
 			model.readSync(payload.data());
+			model.validate(false);
 			if (!model.enabled) {
 				model.enabled = true;
 				LOGGER.info("玩家 {} 已连接OSC", Objects.requireNonNull(p.getDisplayName()).getString());

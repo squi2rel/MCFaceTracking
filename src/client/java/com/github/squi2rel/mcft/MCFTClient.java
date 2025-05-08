@@ -3,7 +3,6 @@ package com.github.squi2rel.mcft;
 import com.github.squi2rel.mcft.network.ConfigPayload;
 import com.github.squi2rel.mcft.network.TrackingParamsPayload;
 import com.github.squi2rel.mcft.network.TrackingUpdatePayload;
-import com.github.squi2rel.mcft.services.DNS;
 import com.github.squi2rel.mcft.services.HTTP;
 import com.github.squi2rel.mcft.services.OSC;
 import com.github.squi2rel.mcft.ui.UVGridScreen;
@@ -39,8 +38,6 @@ public class MCFTClient implements ClientModInitializer {
         model = config.model;
         try {
             HTTP.init();
-            OSC.init();
-            DNS.init();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

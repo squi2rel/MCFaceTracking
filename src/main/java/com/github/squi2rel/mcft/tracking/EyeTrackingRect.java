@@ -52,18 +52,38 @@ public class EyeTrackingRect extends TrackingRect {
         inner.write(buf);
     }
 
+    @Override
+    public void validate(boolean init) {
+        if (init) {
+            super.validate(true);
+            ball.validate(true);
+            lid.validate(true);
+            inner.validate(true);
+            checkInRange(ball.w, 0, 8 - ball.x);
+            checkInRange(ball.h, 0, 8 - ball.y);
+            checkInRange(lid.w, 0, 8 - lid.x);
+            checkInRange(lid.h, 0, 8 - lid.y);
+            checkInRange(inner.w, 0, 8 - inner.x);
+            checkInRange(inner.h, 0, 8 - inner.y);
+        } else {
+            checkInRange(percent, 0, 1);
+            checkInRange(rawPos.x, -2, 2);
+            checkInRange(rawPos.y, -2, 2);
+        }
+    }
+
     public static EyeTrackingRect read(ByteBuf buf) {
         Rect rect = Rect.read(buf);
         Rect ball = Rect.read(buf);
         Rect lid = Rect.read(buf);
         Rect inner = Rect.read(buf);
-        if (rect == null || ball == null || lid == null || inner == null) throw new IllegalStateException();
+        if (rect == null || ball == null || lid == null || inner == null) throw new IllegalArgumentException();
         return new EyeTrackingRect(
                 rect.x, rect.y, rect.w, rect.h,
                 rect.ix, rect.iy, rect.iw, rect.ih,
-                ball.x, ball.y, ball.ix, ball.iy, ball.iw, ball.ih,
-                lid.x, lid.y, lid.ix, lid.iy, lid.iw, lid.ih,
-                inner.x, inner.y, inner.ix, inner.iy, inner.iw, inner.ih
+                ball.w, ball.h, ball.ix, ball.iy, ball.iw, ball.ih,
+                lid.w, lid.h, lid.ix, lid.iy, lid.iw, lid.ih,
+                inner.w, inner.h, inner.ix, inner.iy, inner.iw, inner.ih
         );
     }
 }
