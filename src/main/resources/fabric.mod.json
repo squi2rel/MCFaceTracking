@@ -10,7 +10,7 @@
 	"contact": {
 		"sources": "https://github.com/squi2rel/MCFaceTracking"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/mcft/icon.png",
 	"environment": "*",
 	"entrypoints": {
