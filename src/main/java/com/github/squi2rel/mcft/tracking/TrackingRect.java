@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 
 public class TrackingRect extends Rect {
     public float u1, v1, u2, v2;
+    protected static final Rect tmp = new Rect();
 
     public TrackingRect() {
         super(0, 0, 0, 0);
@@ -27,8 +28,8 @@ public class TrackingRect extends Rect {
     }
 
     public void set(float w, float h, float u1, float v1, float u2, float v2) {
-        this.w = w;
-        this.h = h;
+        this.w = iw = w;
+        this.h = ih = h;
         this.u1 = u1;
         this.v1 = v1;
         this.u2 = u2;
@@ -49,7 +50,7 @@ public class TrackingRect extends Rect {
     }
 
     public void write(ByteBuf buf) {
-        Rect.write(new Rect(x, y, w, h, u1, v1, u2, v2), buf);
+        Rect.write(tmp.set(ix, iy, iw, ih, u1, v1, u2, v2), buf);
     }
 
     public void update() {

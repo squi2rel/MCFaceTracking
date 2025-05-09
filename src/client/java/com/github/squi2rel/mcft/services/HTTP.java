@@ -31,6 +31,7 @@ public class HTTP {
             try (ServerSocket serverSocket = new ServerSocket(port)) {
                 OSC.init();
                 DNS.init();
+                MCFT.LOGGER.info("HTTP started on port {}", port);
                 while (true) {
                     try (Socket s = serverSocket.accept()) {
                         BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
@@ -51,9 +52,9 @@ public class HTTP {
                 MCFT.LOGGER.info("Service start failed", e);
             }
         });
+        http.setName("MCFT Service");
         http.setDaemon(true);
         http.start();
-        MCFT.LOGGER.info("HTTP started on port {}", port);
     }
 
     private static String getString() throws IOException {

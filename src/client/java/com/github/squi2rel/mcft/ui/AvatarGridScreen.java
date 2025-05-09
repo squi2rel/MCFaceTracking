@@ -70,9 +70,15 @@ public class AvatarGridScreen extends GridScreen {
             writeConfig();
             MinecraftClient.getInstance().setScreen(null);
         }).dimensions(20, y + (btnHeight + 2) * 8, btnWidth, btnHeight).build());
-        eyeW = previewGroup.add(SettingsSlider.floatSlider(20, y, btnWidth, btnHeight, model.eyeR.ball.w, 0.25f, 4f, f -> model.eyeR.ball.w = model.eyeL.ball.w = f, f -> String.format("眼球宽度: %.2f", f)));
-        eyeH = previewGroup.add(SettingsSlider.floatSlider(20, y + btnHeight + 2, btnWidth, btnHeight, model.eyeR.ball.h, 0.25f, 4f, f -> model.eyeR.ball.h = model.eyeL.ball.h = f, f -> String.format("眼球高度: %.2f", f)));
-        if (model.isFlat) previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight, model.mouth.h, -3f, 3f, f -> model.mouth.h = f, f -> String.format("眉毛高度: %.2f", f)));
+        eyeW = previewGroup.add(SettingsSlider.floatSlider(20, y, btnWidth, btnHeight, model.eyeR.ball.w, 0.25f, 4f, f -> {
+            model.eyeR.ball.w(f);
+            model.eyeL.ball.w(f);
+        }, f -> String.format("眼球宽度: %.2f", f)));
+        eyeH = previewGroup.add(SettingsSlider.floatSlider(20, y + btnHeight + 2, btnWidth, btnHeight, model.eyeR.ball.h, 0.25f, 4f, f -> {
+            model.eyeR.ball.h(f);
+            model.eyeL.ball.h(f);
+        }, f -> String.format("眼球高度: %.2f", f)));
+        if (model.isFlat) previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight, model.mouth.h, -3f, 3f, f -> model.mouth.h(f), f -> String.format("眉毛高度: %.2f", f)));
         eyeX = previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 3, btnWidth, btnHeight, config.eyeXMul, 0.1f, 2f, f -> config.eyeXMul = f, f -> String.format("眼球X轴移动倍率: %.2f", f)));
         eyeY = previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight, config.eyeYMul, 0.1f, 2f, f -> config.eyeYMul = f, f -> String.format("眼球Y轴移动倍率: %.2f", f)));
         group.visible(!preview);

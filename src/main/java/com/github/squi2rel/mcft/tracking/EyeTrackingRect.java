@@ -29,13 +29,13 @@ public class EyeTrackingRect extends TrackingRect {
             float x, float y, float w, float h,
             float u1, float v1, float u2, float v2,
             float ew, float eh, float eu1, float eu2, float ev1, float ev2,
-            float lw, float lh, float lu1, float lv1, float lu2, float lv2,
-            float iw, float ih, float iu1, float iu2, float iv1, float iv2
+            float lu1, float lv1, float lu2, float lv2,
+            float iu1, float iv1, float iu2, float iv2
     ) {
         super(x, y, w, h, u1, v1, u2, v2);
         ball.set(ew, eh, eu1, ev1, eu2, ev2);
-        lid.set(lw, lh, lu1, lv1, lu2, lv2);
-        inner.set(iw, ih, iu1, iu2, iv1, iv2);
+        lid.uv(lu1, lv1, lu2, lv2);
+        inner.uv(iu1, iv1, iu2, iv2);
     }
 
     @Override
@@ -48,8 +48,7 @@ public class EyeTrackingRect extends TrackingRect {
     public void write(ByteBuf buf) {
         super.write(buf);
         ball.write(buf);
-        lid.write(buf);
-        inner.write(buf);
+        Rect.write(tmp.set(lid.u1, lid.v1, lid.u2, lid.v2, inner.u1, inner.v1, inner.u2, inner.v2), buf);
     }
 
     @Override
@@ -75,15 +74,14 @@ public class EyeTrackingRect extends TrackingRect {
     public static EyeTrackingRect read(ByteBuf buf) {
         Rect rect = Rect.read(buf);
         Rect ball = Rect.read(buf);
-        Rect lid = Rect.read(buf);
         Rect inner = Rect.read(buf);
-        if (rect == null || ball == null || lid == null || inner == null) throw new IllegalArgumentException();
+        if (rect == null || ball == null || inner == null) throw new IllegalArgumentException();
         return new EyeTrackingRect(
                 rect.x, rect.y, rect.w, rect.h,
                 rect.ix, rect.iy, rect.iw, rect.ih,
                 ball.w, ball.h, ball.ix, ball.iy, ball.iw, ball.ih,
-                lid.w, lid.h, lid.ix, lid.iy, lid.iw, lid.ih,
-                inner.w, inner.h, inner.ix, inner.iy, inner.iw, inner.ih
+                inner.x, inner.y, inner.w, inner.h,
+                inner.ix, inner.iy, inner.iw, inner.ih
         );
     }
 }

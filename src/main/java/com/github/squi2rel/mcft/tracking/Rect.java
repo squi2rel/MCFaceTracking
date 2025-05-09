@@ -32,6 +32,26 @@ public class Rect {
         this.ih = ih;
     }
 
+    public Rect set(float x, float y, float w, float h, float ix, float iy, float iw, float ih) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.ix = ix;
+        this.iy = iy;
+        this.iw = iw;
+        this.ih = ih;
+        return this;
+    }
+
+    public void w(float w) {
+        this.w = iw = w;
+    }
+
+    public void h(float h) {
+        this.h = ih = h;
+    }
+
     public static void writePos(Rect rect, ByteBuf buf) {
         buf.writeFloat(rect.x);
         buf.writeFloat(rect.y);
