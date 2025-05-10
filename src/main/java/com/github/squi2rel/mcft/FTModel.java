@@ -4,7 +4,6 @@ import com.github.squi2rel.mcft.tracking.EyeTrackingRect;
 import com.github.squi2rel.mcft.tracking.MouthTrackingRect;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.util.math.MathHelper;
 
 public class FTModel {
     public static FTModel model;
@@ -26,7 +25,7 @@ public class FTModel {
     }
 
     public void update(float fps) {
-        float delta = MathHelper.clamp(System.currentTimeMillis() - lastReceived / 1000f * fps, 0, 1);
+        float delta = Math.clamp(System.currentTimeMillis() - lastReceived / 1000f * fps, 0, 1);
         eyeR.update(delta);
         eyeL.update(delta);
         if (!isFlat) mouth.update(delta);

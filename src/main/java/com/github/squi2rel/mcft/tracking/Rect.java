@@ -1,7 +1,6 @@
 package com.github.squi2rel.mcft.tracking;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.util.math.MathHelper;
 
 public class Rect {
     public float ix, iy, iw, ih;
@@ -64,8 +63,8 @@ public class Rect {
             y = dest.y;
             return;
         }
-        x = MathHelper.lerp(delta, src.x, dest.x);
-        y = MathHelper.lerp(delta, src.y, dest.y);
+        x = lerp(delta, src.x, dest.x);
+        y = lerp(delta, src.y, dest.y);
     }
 
     public static void writePos(Rect rect, ByteBuf buf) {
@@ -90,6 +89,10 @@ public class Rect {
             buf.writeFloat(rect.iw);
             buf.writeFloat(rect.ih);
         }
+    }
+
+    public static float lerp(float delta, float start, float end) {
+        return start + delta * (end - start);
     }
 
     public static Rect read(ByteBuf buf) {
