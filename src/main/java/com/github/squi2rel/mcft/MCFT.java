@@ -26,6 +26,7 @@ public class MCFT implements ModInitializer {
 
 	public static HashMap<UUID, FTModel> models = new HashMap<>();
 
+	public static final String version = FabricLoader.getInstance().getModContainer(MOD_ID).orElseThrow().getMetadata().getVersion().toString();
 	public static final Path configPath = FabricLoader.getInstance().getConfigDir().resolve("mcft-server.json");
 	public static ServerConfig config;
 
@@ -73,7 +74,7 @@ public class MCFT implements ModInitializer {
 			models.forEach((u, m) -> {
 				if (m.enabled) ServerPlayNetworking.send(h.getPlayer(), new TrackingParamsPayload(u, m.eyeR, m.eyeL, m.mouth, m.isFlat));
 			});
-			ServerPlayNetworking.send(h.getPlayer(), new ConfigPayload(config.fps));
+			ServerPlayNetworking.send(h.getPlayer(), new ConfigPayload(version, config.fps));
 		});
 
 		ServerPlayConnectionEvents.DISCONNECT.register((h, s) -> models.remove(h.getPlayer().getUuid()));

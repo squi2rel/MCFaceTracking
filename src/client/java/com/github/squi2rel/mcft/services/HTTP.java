@@ -49,7 +49,7 @@ public class HTTP {
                     }
                 }
             } catch (Exception e) {
-                MCFT.LOGGER.info("Service start failed", e);
+                MCFT.LOGGER.error("Service start failed", e);
             }
         });
         http.setName("MCFT Service");

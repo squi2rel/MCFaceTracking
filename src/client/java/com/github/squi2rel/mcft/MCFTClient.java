@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.text.Text;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -51,6 +52,10 @@ public class MCFTClient implements ClientModInitializer {
         }));
 
         ClientPlayNetworking.registerGlobalReceiver(ConfigPayload.ID, (p, context) -> context.client().execute(() -> {
+            if (!Objects.equals(p.version(), MCFT.version)) {
+                Objects.requireNonNull(context.client().player).sendMessage(Text.of("服务器MCFT版本和本地版本不匹配! 本地版本为" + MCFT.version + ", 服务器版本为" + p.version()), false);
+                return;
+            }
             fps = p.fps();
             if (!connected) MCFT.LOGGER.info("检测到服务端MCFT");
             connected = true;
