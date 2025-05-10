@@ -46,8 +46,8 @@ public class UVGridScreen extends GridScreen {
         addDrawableChild(ButtonWidget.builder(Text.of("关闭"), b -> MinecraftClient.getInstance().setScreen(null)).dimensions(20, y + (btnHeight + 2) * 8, btnWidth, btnHeight).build());
         groupFlat.visible(model.isFlat);
         group3D.visible(!model.isFlat);
-        gridX = width / 2 + 50;
-        gridY = height / 4;
+        gridX = (width * 3 / 2 - drawSize) / 2;
+        gridY = (height - drawSize) / 2;
     }
 
     @Override

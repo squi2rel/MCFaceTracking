@@ -1,13 +1,18 @@
 package com.github.squi2rel.mcft.tracking;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.util.math.MathHelper;
 
 public class EyeTrackingRect extends TrackingRect {
-    public transient float percent;
-    public Rect rawPos = new Rect();
-    public TrackingRect ball = new TrackingRect();
+    public transient float percent, lastPercent;
+    public transient Rect rawPos = new Rect(), lastPos = new Rect();
+    public TrackingRect ball = new TrackingRect(0, 0, 0.75f, 0.75f);
     public TrackingRect lid = new TrackingRect();
     public TrackingRect inner = new TrackingRect();
+
+    @SuppressWarnings("unused")
+    public EyeTrackingRect() {
+    }
 
     public EyeTrackingRect(float x, float y, float w, float h) {
         super(x, y, w, h);
@@ -21,7 +26,9 @@ public class EyeTrackingRect extends TrackingRect {
 
     @Override
     public void readSync(ByteBuf buf) {
+        lastPercent = percent;
         percent = buf.readFloat();
+        lastPos.set(rawPos.x, rawPos.y);
         Rect.readPos(rawPos, buf);
     }
 
@@ -39,9 +46,11 @@ public class EyeTrackingRect extends TrackingRect {
     }
 
     @Override
-    public void update() {
-        ball.set(rawPos.x, rawPos.y);
-        h = ih * percent;
+    public void update(float delta) {
+        tmp.lerpPos(delta, lastPos, rawPos);
+        float p = MathHelper.lerp(delta, lastPercent, percent);
+        ball.set(tmp.x, tmp.y);
+        h = ih * p;
     }
 
     @Override

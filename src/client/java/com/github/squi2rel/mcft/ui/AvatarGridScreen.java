@@ -83,8 +83,8 @@ public class AvatarGridScreen extends GridScreen {
         eyeY = previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight, config.eyeYMul, 0.1f, 2f, f -> config.eyeYMul = f, f -> String.format("眼球Y轴移动倍率: %.2f", f)));
         group.visible(!preview);
         previewGroup.visible(preview);
-        gridX = width / 2 + 50;
-        gridY = height / 4;
+        gridX = (width * 3 / 2 - drawSize) / 2;
+        gridY = (height - drawSize) / 2;
     }
 
     private void writeConfig() {

@@ -25,7 +25,7 @@ import static com.github.squi2rel.mcft.FTModel.model;
 @SuppressWarnings("resource")
 public class MCFTClient implements ClientModInitializer {
     private static long lastSync = System.currentTimeMillis();
-    private static int fps = -1;
+    public static int fps = -1;
     private static boolean configScreen = false;
     public static boolean connected = false;
     public static HashMap<UUID, FTModel> uuidToModel = new HashMap<>();

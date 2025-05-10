@@ -1,9 +1,11 @@
 package com.github.squi2rel.mcft.tracking;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.util.math.MathHelper;
 
 public class MouthTrackingRect extends TrackingRect {
     public transient float percent;
+    public transient float lastPercent;
 
     public MouthTrackingRect(float x, float y, float w, float h) {
         super(x, y, w, h);
@@ -20,17 +22,19 @@ public class MouthTrackingRect extends TrackingRect {
 
     @Override
     public void readSync(ByteBuf buf) {
+        lastPercent = percent;
         percent = buf.readFloat();
     }
 
     @Override
-    public void update() {
-         float r = Math.max(percent - 0.15f, 0f) / 0.85f;
-         h = ih * r;
-         y = iy - ih * (1 - r);
-         float a = ih * percent;
-         x = ix + a;
-         w = iw - a * 2;
+    public void update(float delta) {
+        float p = MathHelper.lerp(delta, lastPercent, percent);
+        float r = Math.max(p - 0.05f, 0f) / 0.95f;
+        h = ih * r;
+        y = iy - ih * (1 - r);
+        float a = ih * p;
+        x = ix + a;
+        w = iw - a * 2;
     }
 
     @Override

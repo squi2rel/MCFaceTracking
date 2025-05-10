@@ -22,11 +22,6 @@ public class TrackingRect extends Rect {
         this.v2 = v2;
     }
 
-    public void set(float x, float y) {
-        this.x = x;
-        this.y = y;
-    }
-
     public void set(float w, float h, float u1, float v1, float u2, float v2) {
         this.w = iw = w;
         this.h = ih = h;
@@ -53,7 +48,7 @@ public class TrackingRect extends Rect {
         Rect.write(tmp.set(ix, iy, iw, ih, u1, v1, u2, v2), buf);
     }
 
-    public void update() {
+    public void update(float delta) {
     }
 
     public void validate(boolean init) {
