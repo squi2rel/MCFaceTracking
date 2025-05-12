@@ -42,10 +42,14 @@ public class MCFT implements ModInitializer {
 			ServerPlayerEntity p = context.player();
 			FTModel old = models.get(p.getUuid());
 			if (old == null) LOGGER.info("玩家 {} 正在使用MCFT", Objects.requireNonNull(p.getDisplayName()).getString());
-			FTModel now = new FTModel(payload.eyeR(), payload.eyeL(), payload.mouth(), payload.flat());
-			now.validate(true);
-            if (old != null) now.enabled = old.enabled;
-            models.put(p.getUuid(), now);
+			FTModel model = new FTModel(payload.eyeR(), payload.eyeL(), payload.mouth(), payload.flat());
+			model.validate(true);
+            if (old != null) model.enabled = old.enabled;
+            models.put(p.getUuid(), model);
+			if (model.enabled) {
+				TrackingParamsPayload packet = new TrackingParamsPayload(p.getUuid(), model.eyeR, model.eyeL, model.mouth, model.isFlat);
+				for (ServerPlayerEntity player : PlayerLookup.all(Objects.requireNonNull(p.getServer()))) ServerPlayNetworking.send(player, packet);
+			}
 		});
 
 		ServerPlayNetworking.registerGlobalReceiver(TrackingUpdatePayload.ID, (payload, context) -> {
@@ -58,16 +62,10 @@ public class MCFT implements ModInitializer {
 				model.enabled = true;
 				LOGGER.info("玩家 {} 已连接OSC", Objects.requireNonNull(p.getDisplayName()).getString());
 				TrackingParamsPayload packet = new TrackingParamsPayload(p.getUuid(), model.eyeR, model.eyeL, model.mouth, model.isFlat);
-				for (ServerPlayerEntity player : PlayerLookup.all(Objects.requireNonNull(p.getServer()))) {
-					if (player.equals(p)) continue;
-					ServerPlayNetworking.send(player, packet);
-				}
+				for (ServerPlayerEntity player : PlayerLookup.all(Objects.requireNonNull(p.getServer()))) ServerPlayNetworking.send(player, packet);
 			}
 			TrackingUpdatePayload packet = new TrackingUpdatePayload(p.getUuid(), payload.data());
-			for (ServerPlayerEntity player : PlayerLookup.around(p.getServerWorld(), p.getPos(), config.syncRadius)) {
-				if (player.equals(p)) continue;
-				ServerPlayNetworking.send(player, packet);
-			}
+			for (ServerPlayerEntity player : PlayerLookup.around(p.getServerWorld(), p.getPos(), config.syncRadius)) ServerPlayNetworking.send(player, packet);
 		});
 
 		ServerPlayConnectionEvents.JOIN.register((h, s, c) -> {
