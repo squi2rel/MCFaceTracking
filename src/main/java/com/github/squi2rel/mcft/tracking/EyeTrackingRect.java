@@ -66,16 +66,16 @@ public class EyeTrackingRect extends TrackingRect {
             ball.validate(true);
             lid.validate(true);
             inner.validate(true);
-            checkInRange(ball.w, 0, 8 - ball.x);
-            checkInRange(ball.h, 0, 8 - ball.y);
-            checkInRange(lid.w, 0, 8 - lid.x);
-            checkInRange(lid.h, 0, 8 - lid.y);
-            checkInRange(inner.w, 0, 8 - inner.x);
-            checkInRange(inner.h, 0, 8 - inner.y);
+            ball.w = Math.clamp(ball.w, 0, 8 - ball.x);
+            ball.h = Math.clamp(ball.h, 0, 8 - ball.y);
+            lid.w = Math.clamp(lid.w, 0, 8 - lid.x);
+            lid.h = Math.clamp(lid.h, 0, 8 - lid.y);
+            inner.w = Math.clamp(inner.w, 0, 8 - inner.x);
+            inner.h = Math.clamp(inner.h, 0, 8 - inner.y);
         } else {
-            checkInRange(percent, 0, 1);
-            checkInRange(rawPos.x, -2, 2);
-            checkInRange(rawPos.y, -2, 2);
+            percent = Math.clamp(percent, 0, 1);
+            rawPos.x = Math.clamp(rawPos.x, -2, 2);
+            rawPos.y = Math.clamp(rawPos.y, -2, 2);
         }
     }
 

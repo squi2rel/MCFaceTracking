@@ -40,12 +40,12 @@ public class MouthTrackingRect extends TrackingRect {
     public void validate(boolean init) {
         if (init) {
             super.validate(true);
-            checkInRange(x, 0, 8);
-            checkInRange(y, 0, 8);
-            checkInRange(w, 0, 8 - x);
-            checkInRange(h, -3, 8);
+            x = Math.clamp(x, 0, 8);
+            y = Math.clamp(y, 0, 8);
+            w = Math.clamp(w, 0, 8 - x);
+            h = Math.clamp(h, -3, 8);
         } else {
-            checkInRange(percent, 0, 1);
+            percent = Math.clamp(percent, 0, 1);
         }
     }
 
