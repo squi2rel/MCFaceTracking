@@ -47,7 +47,7 @@ public class MCFTClient implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(TrackingUpdatePayload.ID, (p, context) -> context.client().execute(() -> {
             FTModel model = uuidToModel.get(p.player());
-            if (model == null) return;
+            if (model == null || model == FTModel.model) return;
             model.readSync(p.data());
         }));
 
