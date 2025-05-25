@@ -8,7 +8,6 @@
     "ModelPartDataMixin",
     "PlayerEntityModelMixin",
     "PlayerEntityRendererMixin",
-    "QuadAccessor",
     "VertexAccessor"
   ],
   "injectors": {

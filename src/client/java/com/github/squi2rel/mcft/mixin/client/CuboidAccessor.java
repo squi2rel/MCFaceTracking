@@ -16,6 +16,15 @@ public interface CuboidAccessor {
     @Accessor("minZ")
     float getMinZ();
 
+    @Accessor("maxX")
+    float getMaxX();
+
+    @Accessor("maxY")
+    float getMaxY();
+
+    @Accessor("maxZ")
+    float getMaxZ();
+
     @Accessor("minX")
     @Mutable
     void setMinX(float x);
@@ -27,6 +36,18 @@ public interface CuboidAccessor {
     @Accessor("minZ")
     @Mutable
     void setMinZ(float z);
+
+    @Accessor("maxX")
+    @Mutable
+    void setMaxX(float x);
+
+    @Accessor("maxY")
+    @Mutable
+    void setMaxY(float y);
+
+    @Accessor("maxZ")
+    @Mutable
+    void setMaxZ(float z);
 
     @Accessor("sides")
     ModelPart.Quad[] getSides();

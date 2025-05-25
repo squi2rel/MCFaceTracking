@@ -1,7 +1,6 @@
 package com.github.squi2rel.mcft;
 
 import com.github.squi2rel.mcft.mixin.client.CuboidAccessor;
-import com.github.squi2rel.mcft.mixin.client.QuadAccessor;
 import com.github.squi2rel.mcft.mixin.client.VertexAccessor;
 import com.github.squi2rel.mcft.tracking.EyeTrackingRect;
 import com.github.squi2rel.mcft.tracking.MouthTrackingRect;
@@ -20,7 +19,7 @@ import java.util.UUID;
 
 @SuppressWarnings({"unchecked", "SameParameterValue"})
 public class FTCuboid extends ModelPart.Cuboid {
-    public static final int faceIndex = 3;
+    public static final Vector3f face = Direction.NORTH.getUnitVector();
     public static UUID player;
     private static final Vector3f position = new Vector3f(), normal = new Vector3f(), tmp = new Vector3f();
     private static final Constructor<FTCuboid> constructor;
@@ -48,19 +47,16 @@ public class FTCuboid extends ModelPart.Cuboid {
         overlay = o;
         color = c;
         Matrix4f posMat = entry.getPositionMatrix();
-        int id = -1;
-        for (ModelPart.Quad q : this.sides) {
-            id++;
-            QuadAccessor quad = (QuadAccessor) (Object) q;
-            entry.transformNormal(quad.getDirection(), normal);
-            if (id == faceIndex) {
+        for (ModelPart.Quad quad : this.sides) {
+            entry.transformNormal(quad.direction(), normal);
+            if (quad.direction().equals(face)) {
                 FTModel m = MCFTClient.uuidToModel.get(player);
                 if (m != null && m.active()) {
                     drawFace(m, entry, buffer);
                     continue;
                 }
             }
-            for (ModelPart.Vertex vertex : quad.getVertices()) {
+            for (ModelPart.Vertex vertex : quad.vertices()) {
                 Vector3f pos = ((VertexAccessor) (Object) vertex).getPos();
                 posMat.transformPosition(pos.x() / 16.0F, pos.y() / 16.0F, pos.z() / 16.0F, position);
                 buffer.vertex(
@@ -179,6 +175,9 @@ public class FTCuboid extends ModelPart.Cuboid {
         now.setMinX(old.getMinX());
         now.setMinY(old.getMinY());
         now.setMinZ(old.getMinZ());
+        now.setMaxX(old.getMaxX());
+        now.setMaxY(old.getMaxY());
+        now.setMaxZ(old.getMaxZ());
         now.setSides(old.getSides());
         return (FTCuboid) now;
     }
