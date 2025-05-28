@@ -93,7 +93,11 @@ public class MCFT implements ModInitializer {
         }
     }
 
-    public static void saveConfig(Object config, Path path) throws IOException {
-        Files.writeString(path, new Gson().toJson(config));
+    public static void saveConfig(Object config, Path path) {
+        try {
+            Files.writeString(path, new Gson().toJson(config));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

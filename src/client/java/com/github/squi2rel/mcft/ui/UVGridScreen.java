@@ -24,7 +24,7 @@ public class UVGridScreen extends GridScreen {
         super.init();
         int btnWidth = 100;
         int btnHeight = 20;
-        int buttons = 9;
+        int buttons = 10;
         int totalHeight = buttons * btnHeight + (buttons - 1) * 2;
         int y = (this.height - totalHeight) / 2;
         WidgetGroup group3D = new WidgetGroup();

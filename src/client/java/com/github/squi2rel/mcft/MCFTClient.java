@@ -87,6 +87,8 @@ public class MCFTClient implements ClientModInitializer {
                 configScreen = false;
             }
         });
+
+        AutoBlink.init();
     }
 
     private static boolean checkVersion(String v) {

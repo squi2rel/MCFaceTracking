@@ -14,8 +14,6 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
-import java.io.IOException;
-
 import static com.github.squi2rel.mcft.FTModel.model;
 import static com.github.squi2rel.mcft.MCFTClient.config;
 
@@ -35,7 +33,7 @@ public class AvatarGridScreen extends GridScreen {
         super.init();
         int btnWidth = 100;
         int btnHeight = 20;
-        int buttons = 9;
+        int buttons = 10;
         int totalHeight = buttons * btnHeight + (buttons - 1) * 2;
         int y = (this.height - totalHeight) / 2;
         WidgetGroup group = new WidgetGroup();
@@ -70,6 +68,11 @@ public class AvatarGridScreen extends GridScreen {
             writeConfig();
             MinecraftClient.getInstance().setScreen(null);
         }).dimensions(20, y + (btnHeight + 2) * 8, btnWidth, btnHeight).build());
+        previewGroup.add(ButtonWidget.builder(Text.of(config.autoBlink ? "关闭自动眨眼" : "开启自动眨眼"), b -> {
+            config.autoBlink = !config.autoBlink;
+            MCFT.saveConfig(config, MCFTClient.configPath);
+            b.setMessage(Text.of(config.autoBlink ? "关闭自动眨眼" : "开启自动眨眼"));
+        }).dimensions(20, y + (btnHeight + 2) * 9, btnWidth, btnHeight).build());
         eyeW = previewGroup.add(SettingsSlider.floatSlider(20, y, btnWidth, btnHeight, model.eyeR.ball.w, 0.25f, 4f, f -> {
             model.eyeR.ball.w(f);
             model.eyeL.ball.w(f);
@@ -90,11 +93,7 @@ public class AvatarGridScreen extends GridScreen {
     private void writeConfig() {
         Config config = MCFTClient.config;
         config.model = model;
-        try {
-            MCFT.saveConfig(config, MCFTClient.configPath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        MCFT.saveConfig(config, MCFTClient.configPath);
     }
 
     private void save() {
