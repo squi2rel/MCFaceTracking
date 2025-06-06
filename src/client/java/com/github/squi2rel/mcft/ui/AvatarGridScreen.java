@@ -20,9 +20,10 @@ import static com.github.squi2rel.mcft.MCFTClient.config;
 @SuppressWarnings("DataFlowIssue")
 public class AvatarGridScreen extends GridScreen {
     private boolean showOverlay = true;
-    private boolean preview = false;
+    private boolean preview = false, blinking = false;
     private static Selection eyeL, eyeR, mouth;
     private SettingsSlider<Float> eyeW, eyeH, eyeX, eyeY;
+    private SettingsSlider<Float> blinkInterval, blinkIntervalFix, blinkDuration, blinkDurationFix, blinkMaxY;
 
     public AvatarGridScreen() {
         super(Text.of("编辑选区"), 8, 128);
@@ -36,24 +37,26 @@ public class AvatarGridScreen extends GridScreen {
         int buttons = 10;
         int totalHeight = buttons * btnHeight + (buttons - 1) * 2;
         int y = (this.height - totalHeight) / 2;
-        WidgetGroup group = new WidgetGroup();
+        WidgetGroup defaultGroup = new WidgetGroup();
+        WidgetGroup markGroup = new WidgetGroup();
         WidgetGroup previewGroup = new WidgetGroup();
-        group.add(ButtonWidget.builder(Text.of("切换覆盖层"), b -> showOverlay = !showOverlay).dimensions(20, y, btnWidth, btnHeight).build());
-        group.add(ButtonWidget.builder(Text.of("自由选择"), b -> {
+        WidgetGroup blinkGroup = new WidgetGroup();
+        markGroup.add(ButtonWidget.builder(Text.of("切换覆盖层"), b -> showOverlay = !showOverlay).dimensions(20, y, btnWidth, btnHeight).build());
+        markGroup.add(ButtonWidget.builder(Text.of("自由选择"), b -> {
             freeDrag = !freeDrag;
             b.setMessage(Text.of(freeDrag ? "吸附选择" : "自由选择"));
         }).dimensions(20, y + btnHeight + 2, btnWidth, btnHeight).build());
-        group.add(ButtonWidget.builder(Text.of("标记为左眼"), b -> eyeL = getSelection()).dimensions(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight).build());
-        group.add(ButtonWidget.builder(Text.of("标记为右眼"), b -> eyeR = getSelection()).dimensions(20, y + (btnHeight + 2) * 3, btnWidth, btnHeight).build());
-        if (!model.isFlat) group.add(ButtonWidget.builder(Text.of("标记为嘴巴"), b -> mouth = getSelection()).dimensions(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight).build());
-        addDrawableChild(ButtonWidget.builder(Text.of("预览效果"), b -> {
-            group.visible(preview);
+        markGroup.add(ButtonWidget.builder(Text.of("标记为左眼"), b -> eyeL = getSelection()).dimensions(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight).build());
+        markGroup.add(ButtonWidget.builder(Text.of("标记为右眼"), b -> eyeR = getSelection()).dimensions(20, y + (btnHeight + 2) * 3, btnWidth, btnHeight).build());
+        if (!model.isFlat) markGroup.add(ButtonWidget.builder(Text.of("标记为嘴巴"), b -> mouth = getSelection()).dimensions(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight).build());
+        defaultGroup.add(ButtonWidget.builder(Text.of("预览效果"), b -> {
+            markGroup.visible(preview);
             preview = !preview;
             if (preview) save();
             previewGroup.visible(preview);
         }).dimensions(20, y + (btnHeight + 2) * 5, btnWidth, btnHeight).build());
-        addDrawableChild(ButtonWidget.builder(Text.of("上一步"), b -> MinecraftClient.getInstance().setScreen(new UVGridScreen())).dimensions(20, y + (btnHeight + 2) * 6, btnWidth, btnHeight).build());
-        group.add(ButtonWidget.builder(Text.of("重置"), b -> {
+        defaultGroup.add(ButtonWidget.builder(Text.of("上一步"), b -> MinecraftClient.getInstance().setScreen(new UVGridScreen())).dimensions(20, y + (btnHeight + 2) * 6, btnWidth, btnHeight).build());
+        markGroup.add(ButtonWidget.builder(Text.of("重置"), b -> {
             eyeL = eyeR = mouth = null;
             MinecraftClient.getInstance().setScreen(new AvatarGridScreen());
         }).dimensions(20, y + (btnHeight + 2) * 7, btnWidth, btnHeight).build());
@@ -63,15 +66,16 @@ public class AvatarGridScreen extends GridScreen {
             eyeX.setValue(0.5f);
             eyeY.setValue(0.3f);
         }).dimensions(20, y + (btnHeight + 2) * 7, btnWidth, btnHeight).build());
-        addDrawableChild(ButtonWidget.builder(Text.of("完成"), b -> {
+        defaultGroup.add(ButtonWidget.builder(Text.of("完成"), b -> {
             save();
             writeConfig();
             MinecraftClient.getInstance().setScreen(null);
         }).dimensions(20, y + (btnHeight + 2) * 8, btnWidth, btnHeight).build());
-        previewGroup.add(ButtonWidget.builder(Text.of(config.autoBlink ? "关闭自动眨眼" : "开启自动眨眼"), b -> {
-            config.autoBlink = !config.autoBlink;
-            MCFT.saveConfig(config, MCFTClient.configPath);
-            b.setMessage(Text.of(config.autoBlink ? "关闭自动眨眼" : "开启自动眨眼"));
+        previewGroup.add(ButtonWidget.builder(Text.of("自动眨眼配置"), b -> {
+            defaultGroup.visible(false);
+            previewGroup.visible(false);
+            blinkGroup.visible(true);
+            blinking = true;
         }).dimensions(20, y + (btnHeight + 2) * 9, btnWidth, btnHeight).build());
         eyeW = previewGroup.add(SettingsSlider.floatSlider(20, y, btnWidth, btnHeight, model.eyeR.ball.w, 0.25f, 4f, f -> {
             model.eyeR.ball.w(f);
@@ -84,8 +88,33 @@ public class AvatarGridScreen extends GridScreen {
         if (model.isFlat) previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight, model.mouth.h, -3f, 3f, f -> model.mouth.h(f), f -> String.format("眉毛高度: %.2f", f)));
         eyeX = previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 3, btnWidth, btnHeight, config.eyeXMul, 0.1f, 2f, f -> config.eyeXMul = f, f -> String.format("眼球X轴移动倍率: %.2f", f)));
         eyeY = previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight, config.eyeYMul, 0.1f, 2f, f -> config.eyeYMul = f, f -> String.format("眼球Y轴移动倍率: %.2f", f)));
-        group.visible(!preview);
-        previewGroup.visible(preview);
+        blinkGroup.add(ButtonWidget.builder(Text.of(config.autoBlink ? "关闭自动眨眼" : "开启自动眨眼"), b -> {
+            config.autoBlink = !config.autoBlink;
+            MCFT.saveConfig(config, MCFTClient.configPath);
+            b.setMessage(Text.of(config.autoBlink ? "关闭自动眨眼" : "开启自动眨眼"));
+        }).dimensions(20, y, btnWidth, btnHeight).build());
+        blinkInterval = blinkGroup.add(SettingsSlider.floatSlider(20, y + btnHeight + 2, btnWidth, btnHeight, config.blinkInterval, 1f, 10f, f -> config.blinkInterval = f, f -> String.format("眨眼间隔时间: %.2fs", f)));
+        blinkIntervalFix = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight, config.blinkIntervalFix, 0f, 10f, f -> config.blinkIntervalFix = f, f -> String.format("间隔时间随机: %.2fs", f)));
+        blinkDuration = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 3, btnWidth, btnHeight, config.blinkDuration, 0.01f, 0.5f, f -> config.blinkDuration = f, f -> String.format("眨眼持续时间: %.2fs", f)));
+        blinkDurationFix = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight, config.blinkDurationFix, 0f, 0.5f, f -> config.blinkDurationFix = f, f -> String.format("持续时间随机: %.2fs", f)));
+        blinkMaxY = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 5, btnWidth, btnHeight, config.blinkMaxY, 0f, 1f, f -> config.blinkMaxY = f, f -> String.format("眼皮打开百分比: %.0f%%", f * 100)));
+        blinkGroup.add(ButtonWidget.builder(Text.of("重置"), b -> {
+            blinkInterval.setValue(5f);
+            blinkIntervalFix.setValue(7.5f);
+            blinkDuration.setValue(0.1f);
+            blinkDurationFix.setValue(0.25f);
+            blinkMaxY.setValue(0.8f);
+        }).dimensions(20, y + (btnHeight + 2) * 7, btnWidth, btnHeight).build());
+        blinkGroup.add(ButtonWidget.builder(Text.of("返回"), b -> {
+            defaultGroup.visible(true);
+            previewGroup.visible(true);
+            blinkGroup.visible(false);
+            blinking = false;
+        }).dimensions(20, y + (btnHeight + 2) * 8, btnWidth, btnHeight).build());
+        defaultGroup.visible(!blinking);
+        markGroup.visible(!preview && !blinking);
+        previewGroup.visible(preview && !blinking);
+        blinkGroup.visible(blinking);
         gridX = (width * 3 / 2 - drawSize) / 2;
         gridY = (height - drawSize) / 2;
     }

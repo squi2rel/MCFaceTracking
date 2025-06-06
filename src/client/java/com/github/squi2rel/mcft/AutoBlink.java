@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import java.util.Random;
 
 import static com.github.squi2rel.mcft.FTModel.model;
+import static com.github.squi2rel.mcft.MCFTClient.config;
 
 public class AutoBlink {
     private static float blinkTime = 0f;
@@ -20,9 +21,9 @@ public class AutoBlink {
 
     public static void init() {
         WorldRenderEvents.LAST.register(e -> {
-            if (!MCFTClient.config.autoBlink) return;
+            if (!config.autoBlink) return;
             update();
-            model.eyeL.percent = model.eyeR.percent = eyeOpenness;
+            model.eyeL.percent = model.eyeR.percent = eyeOpenness * config.blinkMaxY;
             OSC.lastReceived = System.currentTimeMillis();
         });
     }
@@ -37,8 +38,8 @@ public class AutoBlink {
             blinking = true;
             blinkTime = 0f;
             last = 0f;
-            blinkDuration = 100 + random.nextFloat() * 100;
-            blinkInterval = 2500 + random.nextFloat() * 1000;
+            blinkDuration = config.blinkDuration * 1000 + random.nextFloat() * config.blinkDurationFix * 1000;
+            blinkInterval = config.blinkInterval * 1000 + random.nextFloat() * config.blinkIntervalFix * 1000;
         }
 
         if (blinking) {

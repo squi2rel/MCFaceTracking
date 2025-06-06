@@ -21,10 +21,14 @@ public class OSC {
     public static Map<String, Consumer<List<Object>>> allParameters = Map.ofEntries(
             Map.entry("EyeLeftX", f -> model.eyeL.rawPos.x = (float) f.getFirst() * -config.eyeXMul),
             Map.entry("EyeLeftY", f -> model.eyeL.rawPos.y = (float) f.getFirst() * -config.eyeYMul),
-            Map.entry("EyeLidLeft", f -> model.eyeL.percent = (float) f.getFirst()),
+            Map.entry("EyeLidLeft", f -> {
+                if (!config.autoBlink) model.eyeL.percent = (float) f.getFirst();
+            }),
             Map.entry("EyeRightX", f -> model.eyeR.rawPos.x = (float) f.getFirst() * -config.eyeXMul),
             Map.entry("EyeRightY", f -> model.eyeR.rawPos.y = (float) f.getFirst() * -config.eyeYMul),
-            Map.entry("EyeLidRight", f -> model.eyeR.percent = (float) f.getFirst()),
+            Map.entry("EyeLidRight", f -> {
+                if (!config.autoBlink) model.eyeR.percent = (float) f.getFirst();
+            }),
             Map.entry("JawOpen", f -> model.mouth.percent = (float) f.getFirst())
     );
 
