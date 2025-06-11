@@ -22,7 +22,7 @@ public class AvatarGridScreen extends GridScreen {
     private boolean showOverlay = true;
     private boolean preview = false, blinking = false;
     private static Selection eyeL, eyeR, mouth;
-    private SettingsSlider<Float> eyeW, eyeH, eyeX, eyeY;
+    private SettingsSlider<Float> eyeW, eyeH, eyeX, eyeY, brow;
     private SettingsSlider<Float> blinkInterval, blinkIntervalFix, blinkDuration, blinkDurationFix, blinkMaxY;
 
     public AvatarGridScreen() {
@@ -65,6 +65,7 @@ public class AvatarGridScreen extends GridScreen {
             eyeH.setValue(0.75f);
             eyeX.setValue(0.5f);
             eyeY.setValue(0.3f);
+            if (brow != null) brow.setValue(0f);
         }).dimensions(20, y + (btnHeight + 2) * 7, btnWidth, btnHeight).build());
         defaultGroup.add(ButtonWidget.builder(Text.of("完成"), b -> {
             save();
@@ -85,7 +86,8 @@ public class AvatarGridScreen extends GridScreen {
             model.eyeR.ball.h(f);
             model.eyeL.ball.h(f);
         }, f -> String.format("眼球高度: %.2f", f)));
-        if (model.isFlat) previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight, model.mouth.h, -3f, 3f, f -> model.mouth.h(f), f -> String.format("眉毛高度: %.2f", f)));
+        brow = null;
+        if (model.isFlat) brow = previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight, model.mouth.h, -3f, 3f, f -> model.mouth.h(f), f -> String.format("眉毛高度: %.2f", f)));
         eyeX = previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 3, btnWidth, btnHeight, config.eyeXMul, 0.1f, 2f, f -> config.eyeXMul = f, f -> String.format("眼球X轴移动倍率: %.2f", f)));
         eyeY = previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight, config.eyeYMul, 0.1f, 2f, f -> config.eyeYMul = f, f -> String.format("眼球Y轴移动倍率: %.2f", f)));
         blinkGroup.add(ButtonWidget.builder(Text.of(config.autoBlink ? "关闭自动眨眼" : "开启自动眨眼"), b -> {
