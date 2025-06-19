@@ -1,9 +1,6 @@
 package com.github.squi2rel.mcft.ui;
 
-import com.github.squi2rel.mcft.Config;
-import com.github.squi2rel.mcft.FTClient;
-import com.github.squi2rel.mcft.MCFT;
-import com.github.squi2rel.mcft.MCFTClient;
+import com.github.squi2rel.mcft.*;
 import com.github.squi2rel.mcft.tracking.EyeTrackingRect;
 import com.github.squi2rel.mcft.tracking.MouthTrackingRect;
 import net.minecraft.client.MinecraftClient;
@@ -23,6 +20,7 @@ public class AvatarGridScreen extends GridScreen {
     private boolean preview = false, blinking = false;
     private static Selection eyeL, eyeR, mouth;
     private SettingsSlider<Float> eyeW, eyeH, eyeX, eyeY, brow;
+    private SettingsSlider<Float> eyeOffsetXL, eyeOffsetYL, eyeOffsetXR, eyeOffsetYR;
     private SettingsSlider<Float> blinkInterval, blinkIntervalFix, blinkDuration, blinkDurationFix, blinkMaxY;
 
     public AvatarGridScreen() {
@@ -65,6 +63,10 @@ public class AvatarGridScreen extends GridScreen {
             eyeH.setValue(0.75f);
             eyeX.setValue(0.5f);
             eyeY.setValue(0.3f);
+            eyeOffsetXL.setValue(0f);
+            eyeOffsetYL.setValue(0f);
+            eyeOffsetXR.setValue(0f);
+            eyeOffsetYR.setValue(0f);
             if (brow != null) brow.setValue(0f);
         }).dimensions(20, y + (btnHeight + 2) * 7, btnWidth, btnHeight).build());
         defaultGroup.add(ButtonWidget.builder(Text.of("完成"), b -> {
@@ -86,20 +88,39 @@ public class AvatarGridScreen extends GridScreen {
             model.eyeR.ball.h(f);
             model.eyeL.ball.h(f);
         }, f -> String.format("眼球高度: %.2f", f)));
+        eyeOffsetXL = previewGroup.add(SettingsSlider.floatSlider(20 + btnWidth + 2, y, btnWidth, btnHeight, config.eyeOffsetXL, -2f, 2f, f -> {
+            config.eyeOffsetXL = f;
+            if (!model.active() || AutoBlink.enabled) model.eyeL.rawPos.x = f;
+        }, f -> String.format("左眼球X偏移: %.2f", f)));
+        eyeOffsetYL = previewGroup.add(SettingsSlider.floatSlider(20 + btnWidth + 2, y + btnHeight + 2, btnWidth, btnHeight, config.eyeOffsetYL, -2f, 2f, f -> {
+            config.eyeOffsetYL = f;
+            if (!model.active() || AutoBlink.enabled) model.eyeL.rawPos.y = f;
+        }, f -> String.format("左眼球Y偏移: %.2f", f)));
+        eyeOffsetXR = previewGroup.add(SettingsSlider.floatSlider(20 + btnWidth + 2, y + (btnHeight + 2) * 2, btnWidth, btnHeight, config.eyeOffsetXR, -2f, 2f, f -> {
+            config.eyeOffsetXR = f;
+            if (!model.active() || AutoBlink.enabled) model.eyeR.rawPos.x = f;
+        }, f -> String.format("右眼球X偏移: %.2f", f)));
+        eyeOffsetYR = previewGroup.add(SettingsSlider.floatSlider(20 + btnWidth + 2, y + (btnHeight + 2) * 3, btnWidth, btnHeight, config.eyeOffsetYR, -2f, 2f, f -> {
+            config.eyeOffsetYR = f;
+            if (!model.active() || AutoBlink.enabled) model.eyeR.rawPos.y = f;
+        }, f -> String.format("右眼球Y偏移: %.2f", f)));
         brow = null;
         if (model.isFlat) brow = previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight, model.mouth.h, -3f, 3f, f -> model.mouth.h(f), f -> String.format("眉毛高度: %.2f", f)));
         eyeX = previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 3, btnWidth, btnHeight, config.eyeXMul, 0.1f, 2f, f -> config.eyeXMul = f, f -> String.format("眼球X轴移动倍率: %.2f", f)));
         eyeY = previewGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight, config.eyeYMul, 0.1f, 2f, f -> config.eyeYMul = f, f -> String.format("眼球Y轴移动倍率: %.2f", f)));
         blinkGroup.add(ButtonWidget.builder(Text.of(config.autoBlink ? "关闭自动眨眼" : "开启自动眨眼"), b -> {
             config.autoBlink = !config.autoBlink;
-            MCFT.saveConfig(config, MCFTClient.configPath);
             b.setMessage(Text.of(config.autoBlink ? "关闭自动眨眼" : "开启自动眨眼"));
         }).dimensions(20, y, btnWidth, btnHeight).build());
-        blinkInterval = blinkGroup.add(SettingsSlider.floatSlider(20, y + btnHeight + 2, btnWidth, btnHeight, config.blinkInterval, 1f, 10f, f -> config.blinkInterval = f, f -> String.format("眨眼间隔时间: %.2fs", f)));
-        blinkIntervalFix = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight, config.blinkIntervalFix, 0f, 10f, f -> config.blinkIntervalFix = f, f -> String.format("间隔时间随机: %.2fs", f)));
-        blinkDuration = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 3, btnWidth, btnHeight, config.blinkDuration, 0.01f, 0.5f, f -> config.blinkDuration = f, f -> String.format("眨眼持续时间: %.2fs", f)));
-        blinkDurationFix = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight, config.blinkDurationFix, 0f, 0.5f, f -> config.blinkDurationFix = f, f -> String.format("持续时间随机: %.2fs", f)));
-        blinkMaxY = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 5, btnWidth, btnHeight, config.blinkMaxY, 0f, 1f, f -> config.blinkMaxY = f, f -> String.format("眼皮打开百分比: %.0f%%", f * 100)));
+        blinkGroup.add(ButtonWidget.builder(Text.of(config.autoSwitchBlink ? "关闭自动切换" : "开启自动切换"), b -> {
+            config.autoSwitchBlink = !config.autoSwitchBlink;
+            b.setMessage(Text.of(config.autoSwitchBlink ? "关闭自动切换" : "开启自动切换"));
+        }).dimensions(20, y, btnWidth, btnHeight).build());
+        blinkInterval = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight, config.blinkInterval, 1f, 10f, f -> config.blinkInterval = f, f -> String.format("眨眼间隔时间: %.2fs", f)));
+        blinkIntervalFix = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 3, btnWidth, btnHeight, config.blinkIntervalFix, 0f, 10f, f -> config.blinkIntervalFix = f, f -> String.format("间隔时间随机: %.2fs", f)));
+        blinkDuration = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight, config.blinkDuration, 0.01f, 0.5f, f -> config.blinkDuration = f, f -> String.format("眨眼持续时间: %.2fs", f)));
+        blinkDurationFix = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 5, btnWidth, btnHeight, config.blinkDurationFix, 0f, 0.5f, f -> config.blinkDurationFix = f, f -> String.format("持续时间随机: %.2fs", f)));
+        blinkMaxY = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 6, btnWidth, btnHeight, config.blinkMaxY, 0f, 1f, f -> config.blinkMaxY = f, f -> String.format("眼皮打开百分比: %.0f%%", f * 100)));
         blinkGroup.add(ButtonWidget.builder(Text.of("重置"), b -> {
             blinkInterval.setValue(5f);
             blinkIntervalFix.setValue(7.5f);

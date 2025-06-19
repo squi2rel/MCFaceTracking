@@ -3,6 +3,7 @@
   "package": "com.github.squi2rel.mcft.mixin.client",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "ClientPlayNetworkHandlerMixin",
     "CuboidAccessor",
     "ModelPartAccessor",
     "ModelPartDataMixin",

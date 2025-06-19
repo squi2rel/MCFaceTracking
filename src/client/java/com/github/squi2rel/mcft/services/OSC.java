@@ -1,5 +1,6 @@
 package com.github.squi2rel.mcft.services;
 
+import com.github.squi2rel.mcft.AutoBlink;
 import com.github.squi2rel.mcft.MCFT;
 import com.illposed.osc.MessageSelector;
 import com.illposed.osc.OSCMessage;
@@ -19,15 +20,15 @@ import static com.github.squi2rel.mcft.MCFTClient.config;
 public class OSC {
     public static long lastReceived = 0;
     public static Map<String, Consumer<List<Object>>> allParameters = Map.ofEntries(
-            Map.entry("EyeLeftX", f -> model.eyeL.rawPos.x = (float) f.getFirst() * -config.eyeXMul),
-            Map.entry("EyeLeftY", f -> model.eyeL.rawPos.y = (float) f.getFirst() * -config.eyeYMul),
+            Map.entry("EyeLeftX", f -> model.eyeL.rawPos.x = config.eyeOffsetXL + (float) f.getFirst() * -config.eyeXMul),
+            Map.entry("EyeLeftY", f -> model.eyeL.rawPos.y = config.eyeOffsetYL + (float) f.getFirst() * -config.eyeYMul),
             Map.entry("EyeLidLeft", f -> {
-                if (!config.autoBlink) model.eyeL.percent = (float) f.getFirst();
+                if (!AutoBlink.enabled) model.eyeL.percent = (float) f.getFirst();
             }),
-            Map.entry("EyeRightX", f -> model.eyeR.rawPos.x = (float) f.getFirst() * -config.eyeXMul),
-            Map.entry("EyeRightY", f -> model.eyeR.rawPos.y = (float) f.getFirst() * -config.eyeYMul),
+            Map.entry("EyeRightX", f -> model.eyeR.rawPos.x = config.eyeOffsetXR + (float) f.getFirst() * -config.eyeXMul),
+            Map.entry("EyeRightY", f -> model.eyeR.rawPos.y = config.eyeOffsetYR + (float) f.getFirst() * -config.eyeYMul),
             Map.entry("EyeLidRight", f -> {
-                if (!config.autoBlink) model.eyeR.percent = (float) f.getFirst();
+                if (!AutoBlink.enabled) model.eyeR.percent = (float) f.getFirst();
             }),
             Map.entry("JawOpen", f -> model.mouth.percent = (float) f.getFirst())
     );

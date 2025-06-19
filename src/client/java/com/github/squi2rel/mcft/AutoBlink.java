@@ -9,6 +9,7 @@ import static com.github.squi2rel.mcft.FTModel.model;
 import static com.github.squi2rel.mcft.MCFTClient.config;
 
 public class AutoBlink {
+    public static boolean enabled;
     private static float blinkTime = 0f;
     private static float blinkDuration = 300f;
     private static float blinkInterval = 3000f;
@@ -21,10 +22,14 @@ public class AutoBlink {
 
     public static void init() {
         WorldRenderEvents.LAST.register(e -> {
-            if (!config.autoBlink) return;
+            if (!config.autoBlink || config.autoSwitchBlink && OSC.lastReceived != lastUpdateTime && System.currentTimeMillis() - OSC.lastReceived < 3000) {
+                enabled = false;
+                return;
+            }
+            enabled = true;
             update();
             model.eyeL.percent = model.eyeR.percent = eyeOpenness * config.blinkMaxY;
-            OSC.lastReceived = System.currentTimeMillis();
+            OSC.lastReceived = lastUpdateTime;
         });
     }
 

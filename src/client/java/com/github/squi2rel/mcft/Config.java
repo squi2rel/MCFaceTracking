@@ -7,6 +7,8 @@ public class Config {
 
     public FTModel model = new FTModel();
     public float eyeXMul = 0.5f, eyeYMul = 0.3f;
+    public float eyeOffsetXL = 0f, eyeOffsetYL = 0f, eyeOffsetXR = 0f, eyeOffsetYR = 0f;
+    public boolean autoSwitchBlink = true;
 
     public boolean autoBlink = false;
     public float blinkInterval = 5f, blinkIntervalFix = 7.5f, blinkDuration = 0.1f, blinkDurationFix = 0.25f;

@@ -10,7 +10,6 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -62,8 +61,6 @@ public class MCFTClient implements ClientModInitializer {
             connected = true;
             FTClient.uploadParams(model);
         }));
-
-        ClientPlayConnectionEvents.DISCONNECT.register((h, c) -> connected = false);
 
         WorldRenderEvents.LAST.register(e -> {
             if (model.active() && System.currentTimeMillis() - lastSync > 1000 / fps) {
