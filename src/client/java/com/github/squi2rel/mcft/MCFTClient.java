@@ -37,6 +37,8 @@ public class MCFTClient implements ClientModInitializer {
 	public void onInitializeClient() {
         config = MCFT.loadConfig(Config.class, configPath);
         model = config.model;
+        model.eyeL.set(config.eyeOffsetXL, config.eyeOffsetYL);
+        model.eyeR.set(config.eyeOffsetXR, config.eyeOffsetYR);
         try {
             HTTP.init();
         } catch (Exception e) {
