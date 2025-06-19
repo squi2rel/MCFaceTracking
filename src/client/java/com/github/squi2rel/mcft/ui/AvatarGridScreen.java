@@ -115,7 +115,7 @@ public class AvatarGridScreen extends GridScreen {
         blinkGroup.add(ButtonWidget.builder(Text.of(config.autoSwitchBlink ? "关闭自动切换" : "开启自动切换"), b -> {
             config.autoSwitchBlink = !config.autoSwitchBlink;
             b.setMessage(Text.of(config.autoSwitchBlink ? "关闭自动切换" : "开启自动切换"));
-        }).dimensions(20, y, btnWidth, btnHeight).build());
+        }).dimensions(20, y + btnHeight, btnWidth, btnHeight).build());
         blinkInterval = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 2, btnWidth, btnHeight, config.blinkInterval, 1f, 10f, f -> config.blinkInterval = f, f -> String.format("眨眼间隔时间: %.2fs", f)));
         blinkIntervalFix = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 3, btnWidth, btnHeight, config.blinkIntervalFix, 0f, 10f, f -> config.blinkIntervalFix = f, f -> String.format("间隔时间随机: %.2fs", f)));
         blinkDuration = blinkGroup.add(SettingsSlider.floatSlider(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight, config.blinkDuration, 0.01f, 0.5f, f -> config.blinkDuration = f, f -> String.format("眨眼持续时间: %.2fs", f)));
