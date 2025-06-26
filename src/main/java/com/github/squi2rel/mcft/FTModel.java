@@ -37,11 +37,16 @@ public class FTModel {
 
     public void readSync(byte[] data) {
         ByteBuf buf = Unpooled.wrappedBuffer(data);
-        eyeR.readSync(buf);
-        eyeL.readSync(buf);
-        mouth.readSync(buf);
-        if (buf.readableBytes() != 0) throw new IllegalArgumentException("buffer remaining " + buf.readableBytes() + " bytes");
-        lastReceived = System.currentTimeMillis();
+        try {
+            eyeR.readSync(buf);
+            eyeL.readSync(buf);
+            mouth.readSync(buf);
+            if (buf.readableBytes() != 0)
+                throw new IllegalArgumentException("buffer remaining " + buf.readableBytes() + " bytes");
+            lastReceived = System.currentTimeMillis();
+        } finally {
+            buf.release();
+        }
     }
 
     public void validate(boolean init) {
