@@ -109,10 +109,10 @@ public class FTCuboid extends ModelPart.Cuboid {
 
     private void drawEyeFlat(MatrixStack.Entry entry, VertexConsumer buffer, EyeTrackingRect e, MouthTrackingRect brow) {
         Matrix4f posMat = entry.getPositionMatrix();
-        drawQuad(posMat, buffer, e.x - 4 - 0.01f, e.y - 8 + 0.01f, e.inner.u1, e.inner.v2, e.x + e.w - 4 + 0.01f, e.y - e.ih - 8 - 0.01f, e.inner.u2, e.inner.v1, -3.998f);
-        drawQuad(posMat, buffer, e.x + (e.w - e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih - e.ball.h) / 2 + e.ball.y - 8, e.ball.u1, e.ball.v2, e.x + (e.w + e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih + e.ball.h) / 2 + e.ball.y - 8, e.ball.u2, e.ball.v1, -3.99875f);
-        drawQuad(posMat, buffer, e.x - 4, e.y - e.h - 8, e.lid.u1, MathHelper.lerp(1 - e.h / e.ih, e.lid.v1, e.lid.v2), e.x + e.w - 4, e.y - e.ih - 8, e.lid.u2, e.lid.v1, -4.001f);
-        drawQuad(posMat, buffer, e.x - 4, e.y - e.h - brow.h - 1 - 8, brow.u1, brow.v2, e.x + e.w - 4, e.y - e.h - brow.h - 2 - 8, brow.u2, brow.v1, -4.002f);
+        drawQuad(posMat, buffer, clamp4(e.x - 4 - 0.05f), clamp8(e.y - 8 + 0.05f), e.inner.u1, e.inner.v2, clamp4(e.x + e.w - 4 + 0.05f), clamp8(e.y - e.ih - 8 - 0.05f), e.inner.u2, e.inner.v1, -3.99f);
+        drawQuad(posMat, buffer, e.x + (e.w - e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih - e.ball.h) / 2 + e.ball.y - 8, e.ball.u1, e.ball.v2, e.x + (e.w + e.ball.w) / 2 + e.ball.x - 4, e.y - (e.ih + e.ball.h) / 2 + e.ball.y - 8, e.ball.u2, e.ball.v1, -3.995f);
+        drawQuad(posMat, buffer, e.x - 4, e.y - e.h - 8, e.lid.u1, MathHelper.lerp(1 - e.h / e.ih, e.lid.v1, e.lid.v2), e.x + e.w - 4, e.y - e.ih - 8, e.lid.u2, e.lid.v1, -4f);
+        drawQuad(posMat, buffer, e.x - 4, e.y - e.h - brow.h - 1 - 8, brow.u1, brow.v2, e.x + e.w - 4, e.y - e.h - brow.h - 2 - 8, brow.u2, brow.v1, -4.005f);
     }
 
     private void drawCube(MatrixStack.Entry entry, VertexConsumer buffer, float x1, float y1, float z1, float u1, float v1, float x2, float y2, float z2, float u2, float v2, boolean inner, boolean skipFront, boolean skipBack) {
@@ -162,6 +162,14 @@ public class FTCuboid extends ModelPart.Cuboid {
         buffer.vertex(position.x, position.y, position.z, color, u3, v3, overlay, light, nx, ny, nz);
         posMat.transformPosition(x4 / 16.0F, y4 / 16.0F, z4 / 16.0F, position);
         buffer.vertex(position.x, position.y, position.z, color, u4, v4, overlay, light, nx, ny, nz);
+    }
+
+    public static float clamp4(float v) {
+        return MathHelper.clamp(v, -4, 4);
+    }
+
+    public static float clamp8(float v) {
+        return MathHelper.clamp(v, -8, 0);
     }
 
     public static FTCuboid newInstance(ModelPart.Cuboid obj) {
