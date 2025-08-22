@@ -40,7 +40,7 @@
   "mcft.gui.slider.blinkintervalfix": "间隔时间随机: %ss",
   "mcft.gui.slider.blinkduration": "眨眼持续时间: %ss",
   "mcft.gui.slider.blinkdurationfix": "持续时间随机: %ss",
-  "mcft.gui.slider.lidopenness": "眼皮打开百分比: %s",
+  "mcft.gui.slider.lidopenness": "眼皮打开百分比: %s%%",
   "mcft.message.versionmismatch": "服务器MCFT版本和本地版本不匹配! 本地版本为%s, 服务器版本为%s",
   "mcft.logging.connected": "检测到服务端MCFT",
   "mcft.logging.playerconnected": "玩家 %s 正在使用MCFT",

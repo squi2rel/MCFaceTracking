@@ -40,7 +40,7 @@
   "mcft.gui.slider.blinkintervalfix": "Random Interval: %ss",
   "mcft.gui.slider.blinkduration": "AutoBlink Duration: %ss",
   "mcft.gui.slider.blinkdurationfix": "Random Duration: %ss",
-  "mcft.gui.slider.lidopenness": "Lid openness: %s",
+  "mcft.gui.slider.lidopenness": "Lid openness: %s%%",
   "mcft.message.versionmismatch": "Your MCFaceTracking version does not match the server! Local version: %s, Remote version: %s",
   "mcft.logging.connected": "Connected to server side MCFT",
   "mcft.logging.playerconnected": "Player %s is using MCFT",
