@@ -1,4 +1,4 @@
-package com.github.squi2rel.mcft.fabriclike;
+package com.github.squi2rel.mcft.fabric;
 
 import com.github.squi2rel.mcft.network.CustomPacket;
 import com.github.squi2rel.mcft.network.PacketCodec;
@@ -21,11 +21,7 @@ public class ServerPacketHandlerImpl {
 
     public static <P extends CustomPacket<P>> void sendS2C(ServerPlayerEntity player, P packet) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        try {
-            packet.getCodec().writer().accept(packet, buf);
-            ServerPlayNetworking.send(player, packet.getId(), buf);
-        } finally {
-            buf.release();
-        }
+        packet.getCodec().writer().accept(packet, buf);
+        ServerPlayNetworking.send(player, packet.getId(), buf);
     }
 }

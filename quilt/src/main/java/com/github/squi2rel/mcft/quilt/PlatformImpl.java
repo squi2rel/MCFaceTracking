@@ -1,4 +1,4 @@
-package com.github.squi2rel.mcft.fabriclike;
+package com.github.squi2rel.mcft.quilt;
 
 import com.github.squi2rel.mcft.MCFT;
 import com.github.squi2rel.mcft.MCFTClient;

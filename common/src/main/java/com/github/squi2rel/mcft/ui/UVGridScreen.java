@@ -4,7 +4,6 @@ import com.github.squi2rel.mcft.tracking.TrackingRect;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -40,7 +39,7 @@ public class UVGridScreen extends GridScreen {
         addDrawableChild(ButtonWidget.builder(Text.translatable("mcft.gui.button.mark.lpupil"), b -> eyeL = getSelection()).dimensions(20, y + (btnHeight + 2) * 3, btnWidth, btnHeight).build());
         addDrawableChild(ButtonWidget.builder(Text.translatable("mcft.gui.button.mark.rpupil"), b -> eyeR = getSelection()).dimensions(20, y + (btnHeight + 2) * 4, btnWidth, btnHeight).build());
         group3D.add(ButtonWidget.builder(Text.translatable("mcft.gui.button.mark.mouth"), b -> mouth = getSelection()).dimensions(20, y + (btnHeight + 2) * 5, btnWidth, btnHeight).build());
-        groupFlat.add(ButtonWidget.builder(Text.translatable("mcft.gui.button.mark.brow"), b -> mouth = getSelection()).dimensions(20, y + (btnHeight + 2) * 5, btnWidth, btnHeight).build());
+        groupFlat.add(ButtonWidget.builder(Text.translatable("mcft.gui.button.mark.eyebrow"), b -> mouth = getSelection()).dimensions(20, y + (btnHeight + 2) * 5, btnWidth, btnHeight).build());
         addDrawableChild(ButtonWidget.builder(Text.translatable("mcft.gui.button.next"), b -> MinecraftClient.getInstance().setScreen(new AvatarGridScreen())).dimensions(20, y + (btnHeight + 2) * 6, btnWidth, btnHeight).build());
         addDrawableChild(ButtonWidget.builder(Text.translatable("mcft.gui.button.reset"), b -> inner = lid = eyeL = eyeR = mouth = null).dimensions(20, y + (btnHeight + 2) * 7, btnWidth, btnHeight).build());
         addDrawableChild(ButtonWidget.builder(Text.translatable("mcft.gui.button.close"), b -> MinecraftClient.getInstance().setScreen(null)).dimensions(20, y + (btnHeight + 2) * 8, btnWidth, btnHeight).build());

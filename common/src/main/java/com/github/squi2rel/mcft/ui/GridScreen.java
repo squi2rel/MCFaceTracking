@@ -9,11 +9,13 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public abstract class GridScreen extends Screen {
+    public static DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
     protected final int gridLength;
     protected final int drawSize;
     protected boolean selecting = false, freeDrag = false, allowSelect = true;

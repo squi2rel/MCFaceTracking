@@ -9,6 +9,7 @@ import com.github.squi2rel.mcft.ui.UVGridScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.StringUtils;
 
@@ -51,11 +52,11 @@ public class MCFTClient {
 
         ClientPacketHandler.registerS2C(ConfigPayload.class, ConfigPayload.ID, ConfigPayload.CODEC, p -> MC.execute(() -> {
             if (!checkVersion(p.version())) {
-                Objects.requireNonNull(MC.player).sendMessage(Text.of("服务器MCFT版本和本地版本不匹配! 本地版本为" + MCFT.version + ", 服务器版本为" + p.version()), false);
+                Objects.requireNonNull(MC.player).sendMessage(Text.translatable("mcft.message.versionmismatch", MCFT.version, p.version()), false);
                 return;
             }
             fps = p.fps();
-            if (!connected) MCFT.LOGGER.info("检测到服务端MCFT");
+            if (!connected) MCFT.LOGGER.info(I18n.translate("mcft.logging.connected"));
             connected = true;
             FTClient.uploadParams(model);
         }));

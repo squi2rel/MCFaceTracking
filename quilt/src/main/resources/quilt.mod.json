@@ -35,5 +35,6 @@
   },
   "mixin": [
     "mcft.mixins.json"
-  ]
+  ],
+  "accessWidener": "mcft.accesswidener"
 }
