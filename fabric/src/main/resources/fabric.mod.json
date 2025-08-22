@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "mcft",
+  "version": "${version}",
+  "name": "MCFaceTracking",
+  "description": "Face Tracking for Minecraft",
+  "authors": [
+    "squi2rel"
+  ],
+  "contact": {
+    "sources": "https://github.com/squi2rel/MCFaceTracking"
+  },
+  "license": "MIT",
+  "icon": "assets/mcft/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.github.squi2rel.mcft.fabric.MCFTFabric"
+    ]
+  },
+  "mixins": [
+    "mcft.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.17.2",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  },
+  "suggests": {
+  }
+}

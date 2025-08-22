@@ -1,0 +1,22 @@
+{
+  "required": true,
+  "package": "com.github.squi2rel.mcft.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "client": [
+    "client.ClientPlayNetworkHandlerMixin",
+    "client.CuboidAccessor",
+    "client.InventoryScreenMixin",
+    "client.GameRendererMixin",
+    "client.ModelPartAccessor",
+    "client.ModelPartDataMixin",
+    "client.PlayerEntityModelMixin",
+    "client.PlayerEntityRendererMixin",
+    "client.VertexAccessor"
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

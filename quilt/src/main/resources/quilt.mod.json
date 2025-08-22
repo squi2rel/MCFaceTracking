@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "quilt_loader": {
+    "group": "${group}",
+    "id": "mcft",
+    "version": "${version}",
+    "metadata": {
+      "name": "MCFaceTracking",
+      "description": "Face Tracking for Minecraft",
+      "contributors": {
+        "squi2rel": "Author"
+      },
+      "icon": "assets/mcft/icon.png"
+    },
+    "intermediate_mappings": "net.fabricmc:intermediary",
+    "entrypoints": {
+      "init": [
+        "com.github.squi2rel.mcft.quilt.MCFTQuilt"
+      ]
+    },
+    "depends": [
+      {
+        "id": "quilt_loader",
+        "version": "*"
+      },
+      {
+        "id": "quilt_base",
+        "version": "*"
+      },
+      {
+        "id": "minecraft",
+        "version": ">=1.20.1"
+      }
+    ]
+  },
+  "mixin": [
+    "mcft.mixins.json"
+  ]
+}

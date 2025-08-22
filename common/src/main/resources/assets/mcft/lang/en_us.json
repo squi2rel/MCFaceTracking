@@ -1,0 +1,18 @@
+{
+  "mcft.gui.edittexture": "Edit Texture",
+  "mcft.gui.editselection": "Edit Selection",
+  "mcft.gui.button.toggleoverlay": "Toggle Overlay",
+  "mcft.gui.button.alignedselection": "Aligned Selection",
+  "mcft.gui.button.freeselection": "Free Selection",
+  "mcft.gui.button.3dmodel": "Switch to 3D Model",
+  "mcft.gui.button.flatmodel": "Switch to Flat Model",
+  "mcft.gui.button.mark.eyewhite": "Mark Eyewhite Texture",
+  "mcft.gui.button.mark.lid": "Mark Lid Texture",
+  "mcft.gui.button.mark.lpupil": "Mark Left Pupil Texture",
+  "mcft.gui.button.mark.rpupil": "Mark Right Pupil Texture",
+  "mcft.gui.button.mark.mouth": "Mark Mouth Texture",
+  "mcft.gui.button.mark.brow": "Mark Brow Texture",
+  "mcft.gui.button.next": "Next",
+  "mcft.gui.button.reset": "Reset",
+  "mcft.gui.button.close": "Close"
+}
