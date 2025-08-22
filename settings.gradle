@@ -11,6 +11,4 @@ rootProject.name = 'mcft'
 
 include 'common'
 include 'fabric'
-include 'fabric-like'
-include 'forge'
-include 'quilt'
+include 'neoforge'

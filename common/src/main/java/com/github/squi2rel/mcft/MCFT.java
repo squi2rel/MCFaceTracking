@@ -29,7 +29,7 @@ public class MCFT {
     public static void onInitialize() {
         config = loadConfig(ServerConfig.class, configPath);
 
-        ServerPacketHandler.registerC2S(TrackingParamsPayload.class, TrackingParamsPayload.ID, TrackingParamsPayload.CODEC, (payload, p) -> {
+        ServerPacketHandler.registerC2S(TrackingParamsPayload.ID, TrackingParamsPayload.CODEC, (payload, p) -> {
             FTModel old = models.get(p.getUuid());
             if (old == null) LOGGER.info(I18n.translate("mcft.logging.playerconnected", Objects.requireNonNull(p.getDisplayName()).getString()));
             FTModel model = new FTModel(payload.eyeR(), payload.eyeL(), payload.mouth(), payload.flat());
@@ -42,7 +42,7 @@ public class MCFT {
             }
         });
 
-        ServerPacketHandler.registerC2S(TrackingUpdatePayload.class, TrackingUpdatePayload.ID, TrackingUpdatePayload.CODEC, (payload, p) -> {
+        ServerPacketHandler.registerC2S(TrackingUpdatePayload.ID, TrackingUpdatePayload.CODEC, (payload, p) -> {
             FTModel model = models.get(p.getUuid());
             if (model == null || System.currentTimeMillis() - model.lastReceived + 10 < 1000 / config.fps) return;
             model.readSync(payload.data());

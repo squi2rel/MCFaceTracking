@@ -7,18 +7,16 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.joml.Vector3f;
 
 import static com.github.squi2rel.mcft.FTModel.model;
 import static com.github.squi2rel.mcft.MCFTClient.config;
 
 @SuppressWarnings("DataFlowIssue")
 public class AvatarGridScreen extends GridScreen {
-    public static Vector3f translate = new Vector3f();
     private boolean showOverlay = true;
     private boolean preview = false, blinking = false;
     private static Selection eyeL, eyeR, mouth;
@@ -201,19 +199,14 @@ public class AvatarGridScreen extends GridScreen {
     }
 
     private void renderModel(DrawContext context) {
-        context.enableScissor(gridX, gridY, gridX + drawSize, gridY + drawSize);
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        translate.set(0.325f, 2f, 0);
-        InventoryScreen.drawEntity(context, gridX, gridY, 200, 0, 0, player);
-        translate.zero();
-        context.disableScissor();
+        InventoryScreen.drawEntity(context, gridX, gridY, gridX + drawSize, gridY + drawSize, 200, 0.8f, gridX + drawSize / 2f, gridY + drawSize / 2f, MinecraftClient.getInstance().player);
     }
 
     private void renderHead(DrawContext context) {
-        Identifier skin = MinecraftClient.getInstance().player.getSkinTexture();
+        Identifier skin = MinecraftClient.getInstance().player.getSkinTextures().texture();
 
-        context.drawTexture(skin, gridX, gridY, drawSize, drawSize, 8, 8, 8, 8, 64, 64);
-        if (showOverlay) context.drawTexture(skin, gridX - 8, gridY - 8, drawSize + 16, drawSize + 16, 40, 8, 8, 8, 64, 64);
+        context.drawTexture(RenderLayer::getGuiTextured, skin, gridX, gridY, 8, 8, drawSize, drawSize, 8, 8, 64, 64);
+        if (showOverlay) context.drawTexture(RenderLayer::getGuiTextured, skin, gridX - 8, gridY - 8, 40, 8, drawSize + 16, drawSize + 16, 8, 8, 64, 64);
 
         drawGrid(context, gridX, gridY);
     }

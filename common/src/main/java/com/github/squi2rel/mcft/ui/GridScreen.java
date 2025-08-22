@@ -88,12 +88,6 @@ public abstract class GridScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        renderBackground(context);
-        super.render(context, mouseX, mouseY, delta);
-    }
-
-    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (allowSelect && button == GLFW.GLFW_MOUSE_BUTTON_LEFT && mouseX >= gridX && mouseX <= gridX + drawSize && mouseY >= gridY && mouseY <= gridY + drawSize) {
             selecting = true;

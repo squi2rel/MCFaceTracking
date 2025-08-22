@@ -23,8 +23,7 @@ public class FTCuboid extends ModelPart.Cuboid {
     public static UUID player;
     private static final Vector3f position = new Vector3f(), normal = new Vector3f(), tmp = new Vector3f();
     private static final Constructor<FTCuboid> constructor;
-    private static int light, overlay;
-    private static float red, green, blue, alpha;
+    private static int light, overlay, color;
 
     static {
         try {
@@ -41,30 +40,28 @@ public class FTCuboid extends ModelPart.Cuboid {
         throw new AssertionError();
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Override
-    public void renderCuboid(MatrixStack.Entry entry, VertexConsumer buffer, int l, int o, float r, float g, float b, float a) {
+    public void renderCuboid(MatrixStack.Entry entry, VertexConsumer buffer, int l, int o, int c) {
         light = l;
         overlay = o;
-        red = r;
-        green = g;
-        blue = b;
-        alpha = a;
+        color = c;
         Matrix4f posMat = entry.getPositionMatrix();
         for (ModelPart.Quad quad : this.sides) {
-            entry.getNormalMatrix().transform(quad.direction, normal);
-            if (quad.direction.equals(face)) {
+            entry.transformNormal(quad.direction(), normal);
+            if (quad.direction().equals(face)) {
                 FTModel m = MCFTClient.uuidToModel.get(player);
                 if (m != null && m.active()) {
                     drawFace(m, entry, buffer);
                     continue;
                 }
             }
-            for (ModelPart.Vertex vertex : quad.vertices) {
-                Vector3f pos = ((VertexAccessor) vertex).getPos();
+            for (ModelPart.Vertex vertex : quad.vertices()) {
+                Vector3f pos = ((VertexAccessor) (Object) vertex).getPos();
                 posMat.transformPosition(pos.x() / 16.0F, pos.y() / 16.0F, pos.z() / 16.0F, position);
                 buffer.vertex(
                         position.x, position.y, position.z,
-                        red, green, blue, alpha, vertex.u, vertex.v, overlay, light,
+                        color, vertex.u(), vertex.v(), overlay, light,
                         normal.x, normal.y, normal.z
                 );
             }
@@ -120,12 +117,12 @@ public class FTCuboid extends ModelPart.Cuboid {
 
     private void drawCube(MatrixStack.Entry entry, VertexConsumer buffer, float x1, float y1, float z1, float u1, float v1, float x2, float y2, float z2, float u2, float v2, boolean inner, boolean skipFront, boolean skipBack) {
         Matrix4f posMat = entry.getPositionMatrix();
-        if (!skipFront) drawQuad(posMat, buffer, x1, y1, z2, u1, v1, x1, y2, z2, u1, v2, x2, y2, z2, u2, v2, x2, y1, z2, u2, v1, entry.getNormalMatrix().transform((inner ? Direction.SOUTH : Direction.NORTH).getUnitVector(), tmp));
-        if (!skipBack) drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x1, y2, z1, u1, v2, x2, y2, z1, u2, v2, x2, y1, z1, u2, v1, entry.getNormalMatrix().transform((inner ? Direction.NORTH : Direction.SOUTH).getUnitVector(), tmp));
-        drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x1, y1, z2, u2, v1, x1, y2, z2, u2, v2, x1, y2, z1, u1, v2, entry.getNormalMatrix().transform((inner ? Direction.EAST : Direction.WEST).getUnitVector(), tmp));
-        drawQuad(posMat, buffer, x2, y1, z1, u1, v1, x2, y1, z2, u2, v1, x2, y2, z2, u2, v2, x2, y2, z1, u1, v2, entry.getNormalMatrix().transform((inner ? Direction.WEST : Direction.EAST).getUnitVector(), tmp));
-        drawQuad(posMat, buffer, x1, y2, z1, u1, v1, x1, y2, z2, u1, v2, x2, y2, z2, u2, v2, x2, y2, z1, u2, v1, entry.getNormalMatrix().transform((inner ? Direction.DOWN : Direction.UP).getUnitVector(), tmp));
-        drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x2, y1, z1, u2, v1, x2, y1, z2, u2, v2, x1, y1, z2, u1, v2, entry.getNormalMatrix().transform((inner ? Direction.UP : Direction.DOWN).getUnitVector(), tmp));
+        if (!skipFront) drawQuad(posMat, buffer, x1, y1, z2, u1, v1, x1, y2, z2, u1, v2, x2, y2, z2, u2, v2, x2, y1, z2, u2, v1, entry.transformNormal((inner ? Direction.SOUTH : Direction.NORTH).getUnitVector(), tmp));
+        if (!skipBack) drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x1, y2, z1, u1, v2, x2, y2, z1, u2, v2, x2, y1, z1, u2, v1, entry.transformNormal((inner ? Direction.NORTH : Direction.SOUTH).getUnitVector(), tmp));
+        drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x1, y1, z2, u2, v1, x1, y2, z2, u2, v2, x1, y2, z1, u1, v2, entry.transformNormal((inner ? Direction.EAST : Direction.WEST).getUnitVector(), tmp));
+        drawQuad(posMat, buffer, x2, y1, z1, u1, v1, x2, y1, z2, u2, v1, x2, y2, z2, u2, v2, x2, y2, z1, u1, v2, entry.transformNormal((inner ? Direction.WEST : Direction.EAST).getUnitVector(), tmp));
+        drawQuad(posMat, buffer, x1, y2, z1, u1, v1, x1, y2, z2, u1, v2, x2, y2, z2, u2, v2, x2, y2, z1, u2, v1, entry.transformNormal((inner ? Direction.DOWN : Direction.UP).getUnitVector(), tmp));
+        drawQuad(posMat, buffer, x1, y1, z1, u1, v1, x2, y1, z1, u2, v1, x2, y1, z2, u2, v2, x1, y1, z2, u1, v2, entry.transformNormal((inner ? Direction.UP : Direction.DOWN).getUnitVector(), tmp));
     }
 
     private void drawFace(Matrix4f posMat, VertexConsumer buffer, float x, float y, float w, float h) {
@@ -158,13 +155,13 @@ public class FTCuboid extends ModelPart.Cuboid {
         float ny = normal.y;
         float nz = normal.z;
         posMat.transformPosition(x1 / 16.0F, y1 / 16.0F, z1 / 16.0F, position);
-        buffer.vertex(position.x, position.y, position.z, red, green, blue, alpha, u1, v1, overlay, light, nx, ny, nz);
+        buffer.vertex(position.x, position.y, position.z, color, u1, v1, overlay, light, nx, ny, nz);
         posMat.transformPosition(x2 / 16.0F, y2 / 16.0F, z2 / 16.0F, position);
-        buffer.vertex(position.x, position.y, position.z, red, green, blue, alpha, u2, v2, overlay, light, nx, ny, nz);
+        buffer.vertex(position.x, position.y, position.z, color, u2, v2, overlay, light, nx, ny, nz);
         posMat.transformPosition(x3 / 16.0F, y3 / 16.0F, z3 / 16.0F, position);
-        buffer.vertex(position.x, position.y, position.z, red, green, blue, alpha, u3, v3, overlay, light, nx, ny, nz);
+        buffer.vertex(position.x, position.y, position.z, color, u3, v3, overlay, light, nx, ny, nz);
         posMat.transformPosition(x4 / 16.0F, y4 / 16.0F, z4 / 16.0F, position);
-        buffer.vertex(position.x, position.y, position.z, red, green, blue, alpha, u4, v4, overlay, light, nx, ny, nz);
+        buffer.vertex(position.x, position.y, position.z, color, u4, v4, overlay, light, nx, ny, nz);
     }
 
     public static float clamp4(float v) {

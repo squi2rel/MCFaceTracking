@@ -33,19 +33,16 @@ subprojects {
 
     dependencies {
         minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
-        mappings "net.fabricmc:yarn:$rootProject.yarn_mappings:v2"
+        mappings loom.layered {
+            it.mappings("net.fabricmc:yarn:$rootProject.yarn_mappings:v2")
+            it.mappings("dev.architectury:yarn-mappings-patch-neoforge:$rootProject.yarn_mappings_patch_neoforge_version")
+        }
 
         implementation "com.illposed.osc:javaosc-core:0.8"
         implementation "dnsjava:dnsjava:3.5.3"
-        implementation "com.fasterxml.jackson.core:jackson-annotations:2.13.4"
-        implementation "com.fasterxml.jackson.core:jackson-core:2.13.4"
-        implementation "com.fasterxml.jackson.core:jackson-databind:2.13.4.2"
 
         include "com.illposed.osc:javaosc-core:0.8"
         include "dnsjava:dnsjava:3.5.3"
-        include "com.fasterxml.jackson.core:jackson-annotations:2.13.4"
-        include "com.fasterxml.jackson.core:jackson-core:2.13.4"
-        include "com.fasterxml.jackson.core:jackson-databind:2.13.4.2"
     }
 
 
@@ -55,12 +52,12 @@ subprojects {
         // If you remove this line, sources will not be generated.
         withSourcesJar()
 
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     tasks.withType(JavaCompile).configureEach {
-        it.options.release = 17
+        it.options.release = 21
     }
 
     // Configure Maven publishing.

@@ -1,27 +1,22 @@
 package com.github.squi2rel.mcft.fabric;
 
-import com.github.squi2rel.mcft.network.CustomPacket;
-import com.github.squi2rel.mcft.network.PacketCodec;
-import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
 
 import java.util.function.BiConsumer;
 
 @SuppressWarnings("unused")
 public class ServerPacketHandlerImpl {
-    public static <P extends CustomPacket<P>> void registerC2S(Class<P> clazz, Identifier id, PacketCodec<PacketByteBuf, P> codec, BiConsumer<P, ServerPlayerEntity> receiver) {
-        ServerPlayNetworking.registerGlobalReceiver(id, (server, player, handler, buf, responseSender) -> {
-            P packet = codec.reader().apply(buf);
-            receiver.accept(packet, player);
-        });
+    public static <P extends CustomPayload> void registerC2S(CustomPayload.Id<P> id, PacketCodec<PacketByteBuf, P> codec, BiConsumer<P, ServerPlayerEntity> receiver) {
+        PayloadTypeRegistry.playC2S().register(id, codec);
+        ServerPlayNetworking.registerGlobalReceiver(id, (packet, context) -> receiver.accept(packet, context.player()));
     }
 
-    public static <P extends CustomPacket<P>> void sendS2C(ServerPlayerEntity player, P packet) {
-        PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-        packet.getCodec().writer().accept(packet, buf);
-        ServerPlayNetworking.send(player, packet.getId(), buf);
+    public static <P extends CustomPayload> void sendS2C(ServerPlayerEntity player, P packet) {
+        ServerPlayNetworking.send(player, packet);
     }
 }

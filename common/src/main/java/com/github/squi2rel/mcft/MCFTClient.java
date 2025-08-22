@@ -42,15 +42,15 @@ public class MCFTClient {
             throw new RuntimeException(e);
         }
 
-        ClientPacketHandler.registerS2C(TrackingParamsPayload.class, TrackingParamsPayload.ID, TrackingParamsPayload.CODEC, p -> MC.execute(() -> uuidToModel.put(p.player(), new FTModel(p.eyeR(), p.eyeL(), p.mouth(), p.flat()))));
+        ClientPacketHandler.registerS2C(TrackingParamsPayload.ID, TrackingParamsPayload.CODEC, p -> MC.execute(() -> uuidToModel.put(p.player(), new FTModel(p.eyeR(), p.eyeL(), p.mouth(), p.flat()))));
 
-        ClientPacketHandler.registerS2C(TrackingUpdatePayload.class, TrackingUpdatePayload.ID, TrackingUpdatePayload.CODEC, p -> MC.execute(() -> {
+        ClientPacketHandler.registerS2C(TrackingUpdatePayload.ID, TrackingUpdatePayload.CODEC, p -> MC.execute(() -> {
             FTModel model = uuidToModel.get(p.player());
             if (model == null || model == FTModel.model) return;
             model.readSync(p.data());
         }));
 
-        ClientPacketHandler.registerS2C(ConfigPayload.class, ConfigPayload.ID, ConfigPayload.CODEC, p -> MC.execute(() -> {
+        ClientPacketHandler.registerS2C(ConfigPayload.ID, ConfigPayload.CODEC, p -> MC.execute(() -> {
             if (!checkVersion(p.version())) {
                 Objects.requireNonNull(MC.player).sendMessage(Text.translatable("mcft.message.versionmismatch", MCFT.version, p.version()), false);
                 return;

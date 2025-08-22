@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.squi2rel.mcft.MCFT;
 import com.github.squi2rel.mcft.MCFTClient;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.Session;
+import net.minecraft.client.session.Session;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -151,14 +151,11 @@ public class HTTP {
         public void serialize(Object value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
             if (value == null) return;
             gen.writeStartArray();
-            if (value instanceof Boolean b) {
-                gen.writeBoolean(b);
-            } else if (value instanceof Float v) {
-                gen.writeNumber(v);
-            } else if (value instanceof String s) {
-                gen.writeString(s);
-            } else {
-                throw new IllegalStateException("Unexpected value: " + value);
+            switch (value) {
+                case Boolean b -> gen.writeBoolean(b);
+                case Float v -> gen.writeNumber(v);
+                case String s -> gen.writeString(s);
+                default -> throw new IllegalStateException("Unexpected value: " + value);
             }
             gen.writeEndArray();
         }

@@ -4,6 +4,7 @@ import com.github.squi2rel.mcft.tracking.TrackingRect;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -53,10 +54,10 @@ public class UVGridScreen extends GridScreen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        Identifier skin = Objects.requireNonNull(MinecraftClient.getInstance().player).getSkinTexture();
+        Identifier skin = Objects.requireNonNull(MinecraftClient.getInstance().player).getSkinTextures().texture();
 
-        context.drawTexture(skin, gridX, gridY, drawSize, drawSize / 2, 0, 0, 32, 16, 64, 64);
-        context.drawTexture(skin, gridX, gridY + drawSize / 2, drawSize, drawSize / 2, 32, 0, 32, 16, 64, 64);
+        context.drawTexture(RenderLayer::getGuiTextured, skin, gridX, gridY, 0, 0, drawSize, drawSize / 2, 32, 16, 64, 64);
+        context.drawTexture(RenderLayer::getGuiTextured, skin, gridX, gridY + drawSize / 2, 32, 0, drawSize, drawSize / 2, 32, 16, 64, 64);
 
         drawGrid(context, gridX, gridY);
 

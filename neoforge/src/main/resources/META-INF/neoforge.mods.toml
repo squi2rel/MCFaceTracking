@@ -1,0 +1,31 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+issueTrackerURL = "https://github.com/squi2rel/MCFaceTracking/issues"
+license = "MIT"
+
+[[mods]]
+modId = "mcft"
+version = "${version}"
+displayName = "MCFaceTracking"
+authors = "squi2rel"
+description = '''
+Face Tracking for Minecraft
+'''
+logoFile = "assets/mcft/icon.png"
+
+[[dependencies.mcft]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.4,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.mcft]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.4,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[mixins]]
+config = "mcft.mixins.json"

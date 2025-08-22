@@ -21,11 +21,10 @@
   "mixins": [
     "mcft.mixins.json"
   ],
-  "accessWidener": "mcft.accesswidener",
   "depends": {
-    "fabricloader": ">=0.17.2",
-    "minecraft": "~1.20.1",
-    "java": ">=17",
+    "fabricloader": ">=0.16.14",
+    "minecraft": "~1.21.4",
+    "java": ">=21",
     "fabric-api": "*"
   },
   "suggests": {

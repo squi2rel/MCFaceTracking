@@ -1,8 +1,11 @@
 package com.github.squi2rel.mcft.fabric;
 
+import com.github.squi2rel.mcft.MCFT;
+import com.github.squi2rel.mcft.MCFTClient;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 
-import com.github.squi2rel.mcft.fabriclike.MCFTFabricLike;
+import net.fabricmc.loader.api.FabricLoader;
 
 public final class MCFTFabric implements ModInitializer {
     @Override
@@ -11,7 +14,11 @@ public final class MCFTFabric implements ModInitializer {
         // However, some things (like resources) may still be uninitialized.
         // Proceed with mild caution.
 
-        // Run the Fabric-like setup.
-        MCFTFabricLike.init();
+        // Run our common setup.
+        MCFT.onInitialize();
+
+        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+            MCFTClient.onInitializeClient();
+        }
     }
 }

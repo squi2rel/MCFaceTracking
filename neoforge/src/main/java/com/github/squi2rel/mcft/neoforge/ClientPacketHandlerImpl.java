@@ -1,21 +1,19 @@
-package com.github.squi2rel.mcft;
+package com.github.squi2rel.mcft.neoforge;
 
-import dev.architectury.injectables.annotations.ExpectPlatform;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
-public class ClientPacketHandler {
-    @ExpectPlatform
+public class ClientPacketHandlerImpl {
     public static <P extends CustomPayload> void registerS2C(CustomPayload.Id<P> id, PacketCodec<PacketByteBuf, P> codec, Consumer<P> receiver) {
-        throw new AssertionError();
+        PacketHandlers.registerS2C(id, codec, receiver);
     }
 
-    @ExpectPlatform
     public static <P extends CustomPayload> void sendC2S(P packet) {
-        throw new AssertionError();
+        PacketDistributor.sendToServer(packet);
     }
 }
