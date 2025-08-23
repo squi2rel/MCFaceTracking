@@ -1,6 +1,7 @@
 package com.github.squi2rel.mcft.mixin.client;
 
 import com.github.squi2rel.mcft.FTCuboid;
+import com.github.squi2rel.mcft.MCFT;
 import com.github.squi2rel.mcft.ext.ModelPartDataExtension;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.ModelPartData;
@@ -28,6 +29,10 @@ public class ModelPartDataMixin implements ModelPartDataExtension {
         if (!mcft$isPlayerModel) return;
         ModelPartAccessor accessor = (ModelPartAccessor) (Object) cir.getReturnValue().getChild(EntityModelPartNames.HEAD);
         if (accessor == null || accessor.getChildren().get(EntityModelPartNames.LEFT_EAR) != null) return; // piglin
+        if (accessor.getCuboids().size() != 1) {
+            MCFT.LOGGER.warn("Player model is missing HEAD!");
+            return;
+        }
         accessor.setCuboids(List.of(FTCuboid.newInstance(accessor.getCuboids().get(0))));
     }
 }
