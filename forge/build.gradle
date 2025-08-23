@@ -52,4 +52,5 @@ shadowJar {
 
 remapJar {
     inputFile.set shadowJar.archiveFile
+    atAccessWideners.add("mcft.accesswidener")
 }
