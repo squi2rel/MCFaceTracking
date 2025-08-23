@@ -9,9 +9,9 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "multiplatform-1.20.1" ]
+    branches: [ "multiplatform-1.21.4" ]
   pull_request:
-    branches: [ "multiplatform-1.20.1" ]
+    branches: [ "multiplatform-1.21.4" ]
 
 jobs:
   build:
