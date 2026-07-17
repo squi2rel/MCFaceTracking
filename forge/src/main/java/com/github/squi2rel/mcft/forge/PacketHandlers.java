@@ -36,13 +36,19 @@ public class PacketHandlers {
         channels.computeIfAbsent(clazz, k -> register(clazz, id, codec)).serverHandler = (p, s) -> receiver.accept((P) p, s);
     }
 
+    public static <P extends CustomPacket<P>> void registerS2C(Class<P> clazz, Identifier id, PacketCodec<PacketByteBuf, P> codec) {
+        channels.computeIfAbsent(clazz, k -> register(clazz, id, codec));
+    }
+
     public static <P extends CustomPacket<P>> void sendS2C(ServerPlayerEntity player, P packet) {
         channels.get(packet.getClass()).channel.send(PacketDistributor.PLAYER.with(() -> player), packet);
     }
 
     @SuppressWarnings("unchecked")
     public static <P extends CustomPacket<P>> void registerS2C(Class<P> clazz, Identifier id, PacketCodec<PacketByteBuf, P> codec, Consumer<P> receiver) {
-        channels.computeIfAbsent(clazz, k -> register(clazz, id, codec)).clientHandler = p -> receiver.accept((P) p);
+        Handler<P> handler = (Handler<P>) channels.get(clazz);
+        if (handler == null) throw new IllegalStateException("Unregistered clientbound payload " + id);
+        handler.clientHandler = receiver;
     }
 
     public static <P extends CustomPacket<P>> void sendC2S(P packet) {
