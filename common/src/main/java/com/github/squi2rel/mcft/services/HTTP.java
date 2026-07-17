@@ -14,8 +14,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.session.Session;
 
 import java.io.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -25,37 +29,168 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 public class HTTP {
+    private static final Object lifecycleLock = new Object();
+    private static final Object lock = new Object();
+    private static final String HTTP_LOOPBACK_HOST = "127.0.0.1";
+    private static final int SOCKET_READ_TIMEOUT = 5000;
+    private static final int MAX_HEADER_BYTES = 16384;
     public static final int port = MCFTClient.config.httpPort;
-    public static void init() throws IOException {
-        createInfo();
-        Thread http = new Thread(() -> {
-            try (ServerSocket serverSocket = new ServerSocket(port)) {
-                OSC.init();
+    private static ServerSocket serverSocket;
+    private static Thread httpThread;
+
+    public static void init() {
+        synchronized (lifecycleLock) {
+            initServices();
+        }
+    }
+
+    private static void initServices() {
+        try {
+            OSC.init();
+        } catch (Exception e) {
+            MCFT.LOGGER.error("OSC start failed", e);
+        }
+        if (MinecraftClient.getInstance().getSession().getUuidOrNull() == null) {
+            MCFT.LOGGER.warn("OSCQuery start skipped without a session UUID");
+            return;
+        }
+        try {
+            createInfo();
+        } catch (Exception e) {
+            MCFT.LOGGER.error("OSC avatar info creation failed", e);
+        }
+        boolean httpStarted = false;
+        try {
+            httpStarted = startServer();
+        } catch (Exception e) {
+            MCFT.LOGGER.error("HTTP start failed", e);
+        }
+        if (httpStarted) {
+            try {
                 DNS.init();
-                MCFT.LOGGER.info("HTTP started on port {}", port);
-                while (true) {
-                    try (Socket s = serverSocket.accept()) {
-                        BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                        while (true) {
-                            String headerLine = in.readLine();
-                            if (headerLine == null || headerLine.isEmpty()) {
-                                break;
-                            }
-                        }
-                        String response = getString();
-                        OutputStream out = s.getOutputStream();
-                        out.write(response.getBytes(StandardCharsets.UTF_8));
-                        out.flush();
-                    } catch (IOException ignored) {
-                    }
-                }
             } catch (Exception e) {
-                MCFT.LOGGER.error("Service start failed", e);
+                MCFT.LOGGER.error("DNS start failed", e);
             }
-        });
-        http.setName("MCFT Service");
-        http.setDaemon(true);
-        http.start();
+        }
+    }
+
+    public static void shutdown() {
+        synchronized (lifecycleLock) {
+            shutdownServices();
+        }
+    }
+
+    private static void shutdownServices() {
+        ServerSocket current;
+        synchronized (lock) {
+            current = serverSocket;
+            serverSocket = null;
+            httpThread = null;
+        }
+        if (current != null) {
+            try {
+                current.close();
+            } catch (IOException e) {
+                MCFT.LOGGER.error("Failed to close HTTP server", e);
+            }
+        }
+        OSC.shutdown();
+        DNS.shutdown();
+    }
+
+    private static boolean startServer() throws IOException {
+        synchronized (lock) {
+            if (serverSocket != null && !serverSocket.isClosed() && httpThread != null && httpThread.isAlive()) return true;
+            requirePort(port);
+            ServerSocket candidate = new ServerSocket();
+            try {
+                candidate.bind(new InetSocketAddress(InetAddress.getByName(HTTP_LOOPBACK_HOST), port));
+                Thread thread = new Thread(() -> runServer(candidate));
+                thread.setName("MCFT HTTP");
+                thread.setDaemon(true);
+                serverSocket = candidate;
+                httpThread = thread;
+                thread.start();
+                MCFT.LOGGER.info("HTTP started on {}:{}", HTTP_LOOPBACK_HOST, port);
+                return true;
+            } catch (IOException | RuntimeException e) {
+                if (serverSocket == candidate) {
+                    serverSocket = null;
+                    httpThread = null;
+                }
+                try {
+                    candidate.close();
+                } catch (IOException closeException) {
+                    e.addSuppressed(closeException);
+                }
+                throw e;
+            }
+        }
+    }
+
+    private static void runServer(ServerSocket socket) {
+        try {
+            while (!socket.isClosed()) {
+                Socket client;
+                try {
+                    client = socket.accept();
+                } catch (IOException e) {
+                    if (!socket.isClosed()) MCFT.LOGGER.error("HTTP accept failed", e);
+                    break;
+                }
+                try (client) {
+                    handleClient(client);
+                } catch (SocketTimeoutException | SocketException ignored) {
+                } catch (IOException e) {
+                    MCFT.LOGGER.error("HTTP request failed", e);
+                } catch (RuntimeException e) {
+                    MCFT.LOGGER.error("HTTP request failed", e);
+                }
+            }
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                MCFT.LOGGER.error("Failed to close HTTP server", e);
+            }
+            boolean stoppedCurrent = false;
+            synchronized (lock) {
+                if (serverSocket == socket) {
+                    serverSocket = null;
+                    httpThread = null;
+                    stoppedCurrent = true;
+                }
+            }
+            if (stoppedCurrent) DNS.shutdown();
+        }
+    }
+
+    private static void handleClient(Socket client) throws IOException {
+        client.setSoTimeout(SOCKET_READ_TIMEOUT);
+        readHeaders(client.getInputStream());
+        String response = getString();
+        OutputStream out = client.getOutputStream();
+        out.write(response.getBytes(StandardCharsets.UTF_8));
+        out.flush();
+    }
+
+    private static void readHeaders(InputStream input) throws IOException {
+        int third = -1;
+        int second = -1;
+        int previous = -1;
+        for (int count = 0; count < MAX_HEADER_BYTES; count++) {
+            int current = input.read();
+            if (current == -1) return;
+            if (previous == '\n' && current == '\n' || third == '\r' && second == '\n' && previous == '\r' && current == '\n') return;
+            third = second;
+            second = previous;
+            previous = current;
+        }
+        throw new IOException("HTTP request headers exceed " + MAX_HEADER_BYTES + " bytes");
+    }
+
+    private static void requirePort(int value) {
+        if (value < 1 || value > 65535) throw new IllegalArgumentException("httpPort must be between 1 and 65535");
     }
 
     private static String getString() throws IOException {

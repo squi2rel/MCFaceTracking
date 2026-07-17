@@ -14,6 +14,10 @@ public class ServerPacketHandlerImpl {
         PacketHandlers.registerC2S(id, codec, receiver);
     }
 
+    public static <P extends CustomPayload> void registerS2C(CustomPayload.Id<P> id, PacketCodec<PacketByteBuf, P> codec) {
+        PacketHandlers.registerS2C(id, codec);
+    }
+
     public static <P extends CustomPayload> void sendS2C(ServerPlayerEntity player, P packet) {
         PacketDistributor.sendToPlayer(player, packet);
     }

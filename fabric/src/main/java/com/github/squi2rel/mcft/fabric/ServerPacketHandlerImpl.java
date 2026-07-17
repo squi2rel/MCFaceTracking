@@ -16,6 +16,10 @@ public class ServerPacketHandlerImpl {
         ServerPlayNetworking.registerGlobalReceiver(id, (packet, context) -> receiver.accept(packet, context.player()));
     }
 
+    public static <P extends CustomPayload> void registerS2C(CustomPayload.Id<P> id, PacketCodec<PacketByteBuf, P> codec) {
+        PayloadTypeRegistry.playS2C().register(id, codec);
+    }
+
     public static <P extends CustomPayload> void sendS2C(ServerPlayerEntity player, P packet) {
         ServerPlayNetworking.send(player, packet);
     }

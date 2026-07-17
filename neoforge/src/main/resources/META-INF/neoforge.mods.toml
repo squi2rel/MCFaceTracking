@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[4,)"
+loaderVersion = "[6,7)"
 issueTrackerURL = "https://github.com/squi2rel/MCFaceTracking/issues"
 license = "MIT"
 
@@ -16,14 +16,14 @@ logoFile = "assets/mcft/icon.png"
 [[dependencies.mcft]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.4,)"
+versionRange = "[21.4,21.5)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.mcft]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.4,)"
+versionRange = "[1.21.4,1.21.5)"
 ordering = "NONE"
 side = "BOTH"
 

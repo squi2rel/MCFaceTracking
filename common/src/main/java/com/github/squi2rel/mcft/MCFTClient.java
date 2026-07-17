@@ -67,6 +67,7 @@ public class MCFTClient {
     public static void update() {
         if (MC.player == null || MC.world == null) return;
         AutoBlink.update();
+        OSC.applyPendingParameters();
         if (model.active() && System.currentTimeMillis() - lastSync > 1000 / fps) {
             FTClient.writeSync(model);
             lastSync = System.currentTimeMillis();

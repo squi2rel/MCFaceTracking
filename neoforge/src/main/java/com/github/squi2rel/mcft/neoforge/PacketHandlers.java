@@ -18,12 +18,22 @@ public class PacketHandlers {
 
     @SuppressWarnings("unchecked")
     public static <P extends CustomPayload> void registerC2S(CustomPayload.Id<P> id, PacketCodec<PacketByteBuf, P> codec, BiConsumer<P, ServerPlayerEntity> receiver) {
-        channels.computeIfAbsent(id, k -> new Handler<>(codec)).serverHandler = (p, s) -> receiver.accept((P) p, s);
+        Handler<P> handler = (Handler<P>) channels.computeIfAbsent(id, k -> new Handler<>(codec));
+        handler.serverbound = true;
+        handler.serverHandler = receiver;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <P extends CustomPayload> void registerS2C(CustomPayload.Id<P> id, PacketCodec<PacketByteBuf, P> codec) {
+        Handler<P> handler = (Handler<P>) channels.computeIfAbsent(id, k -> new Handler<>(codec));
+        handler.clientbound = true;
     }
 
     @SuppressWarnings("unchecked")
     public static <P extends CustomPayload> void registerS2C(CustomPayload.Id<P> id, PacketCodec<PacketByteBuf, P> codec, Consumer<P> receiver) {
-        channels.computeIfAbsent(id, k -> new Handler<>(codec)).clientHandler = p -> receiver.accept((P) p);
+        Handler<P> handler = (Handler<P>) channels.get(id);
+        if (handler == null || !handler.clientbound) throw new IllegalStateException("Unregistered clientbound payload " + id);
+        handler.clientHandler = receiver;
     }
 
     @SuppressWarnings("unchecked")
@@ -31,19 +41,19 @@ public class PacketHandlers {
         for (Map.Entry<CustomPayload.Id<? extends CustomPayload>, Handler<? extends CustomPayload>> entry : channels.entrySet()) {
             CustomPayload.Id<P> id = (CustomPayload.Id<P>) entry.getKey();
             Handler<P> handler = (Handler<P>) entry.getValue();
-            if (handler.clientHandler != null && handler.serverHandler != null) {
+            if (handler.clientbound && handler.serverbound) {
                 registrar.playBidirectional(
                         id, handler.packetCodec,
                         new DirectionalPayloadHandler<>(
-                                (p, c) -> handler.clientHandler.accept(p),
-                                (p, c) -> handler.serverHandler.accept(p, (ServerPlayerEntity) c.player())
+                                (p, c) -> handler.handleClientbound(p),
+                                (p, c) -> handler.handleServerbound(p, (ServerPlayerEntity) c.player())
                         )
                 );
             } else {
-                if (handler.clientHandler != null) {
-                    registrar.playToClient(id, handler.packetCodec, (p, c) -> handler.clientHandler.accept(p));
-                } else if (handler.serverHandler != null) {
-                    registrar.playToServer(id, handler.packetCodec, (p, c) -> handler.serverHandler.accept(p, (ServerPlayerEntity) c.player()));
+                if (handler.clientbound) {
+                    registrar.playToClient(id, handler.packetCodec, (p, c) -> handler.handleClientbound(p));
+                } else if (handler.serverbound) {
+                    registrar.playToServer(id, handler.packetCodec, (p, c) -> handler.handleServerbound(p, (ServerPlayerEntity) c.player()));
                 }
             }
         }
@@ -51,11 +61,23 @@ public class PacketHandlers {
 
     public static class Handler<P extends CustomPayload> {
         public final PacketCodec<PacketByteBuf, P> packetCodec;
-        public Consumer<P> clientHandler;
-        public BiConsumer<P, ServerPlayerEntity> serverHandler;
+        public boolean clientbound;
+        public boolean serverbound;
+        public volatile Consumer<P> clientHandler;
+        public volatile BiConsumer<P, ServerPlayerEntity> serverHandler;
 
         public Handler(PacketCodec<PacketByteBuf, P> packetCodec) {
             this.packetCodec = packetCodec;
+        }
+
+        public void handleClientbound(P packet) {
+            Consumer<P> receiver = clientHandler;
+            if (receiver != null) receiver.accept(packet);
+        }
+
+        public void handleServerbound(P packet, ServerPlayerEntity player) {
+            BiConsumer<P, ServerPlayerEntity> receiver = serverHandler;
+            if (receiver != null) receiver.accept(packet, player);
         }
     }
 }
