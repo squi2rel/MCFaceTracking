@@ -7,22 +7,65 @@ import java.net.*;
 import java.util.concurrent.TimeUnit;
 
 public class DNS {
+    private static final Object lock = new Object();
+    private static volatile boolean running;
+    private static Thread thread;
     public static final int port = 5353;
     public static void init() {
-        Thread dns = new Thread(() -> {
-            while (true) {
-                try {
-                    TimeUnit.SECONDS.sleep(10);
-                    sendReply();
-                } catch (InterruptedException ignored) {
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+        synchronized (lock) {
+            if (running) return;
+            running = true;
+            Thread candidate = new Thread(DNS::run);
+            candidate.setName("MCFT DNS");
+            candidate.setDaemon(true);
+            thread = candidate;
+            try {
+                candidate.start();
+            } catch (RuntimeException e) {
+                thread = null;
+                running = false;
+                throw e;
             }
-        });
-        dns.setDaemon(true);
-        dns.start();
+        }
         MCFT.LOGGER.info("DNS started on port {}", port);
+    }
+
+    public static void shutdown() {
+        Thread current;
+        synchronized (lock) {
+            running = false;
+            current = thread;
+            thread = null;
+        }
+        if (current != null) current.interrupt();
+    }
+
+    private static void run() {
+        Thread current = Thread.currentThread();
+        boolean failureLogged = false;
+        while (running && thread == current) {
+            try {
+                sendReply();
+                if (failureLogged) MCFT.LOGGER.info("DNS replies resumed");
+                failureLogged = false;
+            } catch (Exception e) {
+                if (!failureLogged) MCFT.LOGGER.error("DNS reply failed", e);
+                failureLogged = true;
+            }
+            if (!running || thread != current) break;
+            try {
+                TimeUnit.SECONDS.sleep(10);
+            } catch (InterruptedException ignored) {
+                current.interrupt();
+                break;
+            }
+        }
+        synchronized (lock) {
+            if (thread == current) {
+                thread = null;
+                running = false;
+            }
+        }
     }
 
     private static void sendReply() throws Exception {

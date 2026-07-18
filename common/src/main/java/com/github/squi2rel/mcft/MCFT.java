@@ -4,7 +4,6 @@ import com.github.squi2rel.mcft.network.ConfigPayload;
 import com.github.squi2rel.mcft.network.TrackingParamsPayload;
 import com.github.squi2rel.mcft.network.TrackingUpdatePayload;
 import com.google.gson.Gson;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.server.network.ServerPlayerEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +30,7 @@ public class MCFT {
 
         ServerPacketHandler.registerC2S(TrackingParamsPayload.class, TrackingParamsPayload.ID, TrackingParamsPayload.CODEC, (payload, p) -> {
             FTModel old = models.get(p.getUuid());
-            if (old == null) LOGGER.info(I18n.translate("mcft.logging.playerconnected", Objects.requireNonNull(p.getDisplayName()).getString()));
+            if (old == null) LOGGER.info("Player {} is using MCFT", Objects.requireNonNull(p.getDisplayName()).getString());
             FTModel model = new FTModel(payload.eyeR(), payload.eyeL(), payload.mouth(), payload.flat());
             model.validate(true);
             if (old != null) model.enabled = old.enabled;
@@ -49,7 +48,7 @@ public class MCFT {
             model.validate(false);
             if (!model.enabled) {
                 model.enabled = true;
-                LOGGER.info(I18n.translate("mcft.logging.oscreceived", Objects.requireNonNull(p.getDisplayName()).getString()));
+                LOGGER.info("Player {} has OSC connected", Objects.requireNonNull(p.getDisplayName()).getString());
                 TrackingParamsPayload packet = new TrackingParamsPayload(p.getUuid(), model.eyeR, model.eyeL, model.mouth, model.isFlat);
                 for (ServerPlayerEntity player : Objects.requireNonNull(p.getServer()).getPlayerManager().getPlayerList()) ServerPacketHandler.sendS2C(player, packet);
             }
@@ -58,6 +57,10 @@ public class MCFT {
                     player.getPos().isInRange(p.getPos(), config.syncRadius)
             )) ServerPacketHandler.sendS2C(player, packet);
         });
+
+        ServerPacketHandler.registerS2C(TrackingParamsPayload.class, TrackingParamsPayload.ID, TrackingParamsPayload.CODEC);
+        ServerPacketHandler.registerS2C(TrackingUpdatePayload.class, TrackingUpdatePayload.ID, TrackingUpdatePayload.CODEC);
+        ServerPacketHandler.registerS2C(ConfigPayload.class, ConfigPayload.ID, ConfigPayload.CODEC);
 
         Platform.register();
     }

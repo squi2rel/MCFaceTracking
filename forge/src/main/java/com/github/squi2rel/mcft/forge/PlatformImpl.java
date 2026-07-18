@@ -1,18 +1,11 @@
 package com.github.squi2rel.mcft.forge;
 
 import com.github.squi2rel.mcft.MCFT;
-import com.github.squi2rel.mcft.MCFTClient;
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import java.nio.file.Path;
@@ -35,14 +28,7 @@ public class PlatformImpl {
     }
 
     public static void registerCommand() {
-    }
-
-    @SubscribeEvent
-    public static void onCommandRegister(RegisterClientCommandsEvent event) {
-        event.getDispatcher().register(LiteralArgumentBuilder.<ServerCommandSource>literal("mcft").executes(s -> {
-            MCFTClient.configScreen = true;
-            return 1;
-        }));
+        MinecraftForge.EVENT_BUS.register(ClientPlatformEvents.class);
     }
 
     @SubscribeEvent

@@ -17,6 +17,11 @@ public class ServerPacketHandler {
     }
 
     @ExpectPlatform
+    public static <P extends CustomPacket<P>> void registerS2C(Class<P> clazz, Identifier id, PacketCodec<PacketByteBuf, P> codec) {
+        throw new AssertionError();
+    }
+
+    @ExpectPlatform
     public static <P extends CustomPacket<P>> void sendS2C(ServerPlayerEntity player, P packet) {
         throw new AssertionError();
     }

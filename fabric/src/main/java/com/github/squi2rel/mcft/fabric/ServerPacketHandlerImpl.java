@@ -19,6 +19,9 @@ public class ServerPacketHandlerImpl {
         });
     }
 
+    public static <P extends CustomPacket<P>> void registerS2C(Class<P> clazz, Identifier id, PacketCodec<PacketByteBuf, P> codec) {
+    }
+
     public static <P extends CustomPacket<P>> void sendS2C(ServerPlayerEntity player, P packet) {
         PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
         packet.getCodec().writer().accept(packet, buf);

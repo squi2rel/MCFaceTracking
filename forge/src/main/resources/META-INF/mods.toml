@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[47,)"
+loaderVersion = "[47,48)"
 #issueTrackerURL = ""
 license = "MIT"
 
@@ -16,13 +16,13 @@ Face Tracking for Minecraft
 [[dependencies.mcft]]
 modId = "forge"
 mandatory = true
-versionRange = "[47,)"
+versionRange = "[47,48)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.mcft]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.20.1,)"
+versionRange = "[1.20.1,1.20.2)"
 ordering = "NONE"
 side = "BOTH"

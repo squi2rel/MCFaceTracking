@@ -19,4 +19,10 @@ public interface ModelPartAccessor {
 
     @Accessor("children")
     Map<String, ModelPart> getChildren();
+
+    @Accessor("visible")
+    boolean getVisible();
+
+    @Accessor("hidden")
+    boolean getHidden();
 }
