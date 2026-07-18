@@ -1,14 +1,10 @@
 package com.github.squi2rel.mcft.neoforge;
 
 import com.github.squi2rel.mcft.MCFT;
-import com.github.squi2rel.mcft.MCFTClient;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
@@ -33,14 +29,7 @@ public class PlatformImpl {
     }
 
     public static void registerCommand() {
-    }
-
-    @SubscribeEvent
-    public static void onCommandRegister(RegisterClientCommandsEvent event) {
-        event.getDispatcher().register(LiteralArgumentBuilder.<ServerCommandSource>literal("mcft").executes(s -> {
-            MCFTClient.configScreen = true;
-            return 1;
-        }));
+        NeoForge.EVENT_BUS.register(ClientPlatformEvents.class);
     }
 
     @SubscribeEvent

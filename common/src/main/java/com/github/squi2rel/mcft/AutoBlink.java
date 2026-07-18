@@ -20,12 +20,12 @@ public class AutoBlink {
     private static long lastUpdateTime = System.currentTimeMillis();
 
     public static void update() {
-        if (!config.autoBlink || config.autoSwitchBlink && OSC.lastReceived != lastUpdateTime && System.currentTimeMillis() - OSC.lastReceived < 3000) {
+        long currentTime = System.currentTimeMillis();
+        if (!config.autoBlink || config.autoSwitchBlink && currentTime - OSC.lastOscReceived < 3000) {
             enabled = false;
             return;
         }
         enabled = true;
-        long currentTime = System.currentTimeMillis();
         float delta = currentTime - lastUpdateTime;
         lastUpdateTime = currentTime;
         last += delta;
@@ -50,6 +50,5 @@ public class AutoBlink {
             }
         }
         model.eyeL.percent = model.eyeR.percent = eyeOpenness * config.blinkMaxY;
-        OSC.lastReceived = lastUpdateTime;
     }
 }
