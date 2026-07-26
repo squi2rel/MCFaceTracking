@@ -1,6 +1,7 @@
 {
   "required": true,
   "package": "com.github.squi2rel.mcft.mixin",
+  "plugin": "com.github.squi2rel.mcft.mixin.MCFTMixinPlugin",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
@@ -9,6 +10,7 @@
     "client.GameRendererMixin",
     "client.ModelPartAccessor",
     "client.ModelPartDataMixin",
+    "client.ModelPartRenderMixin",
     "client.PlayerEntityModelMixin",
     "client.PlayerEntityRendererMixin",
     "client.VertexAccessor"
